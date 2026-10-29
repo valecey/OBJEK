@@ -403,6 +403,7 @@ figure { margin: 0; }
 .slide__stage { aspect-ratio: 1 / 1; margin-top: 24px; }
 .slide__stage .stage__img { padding: 20%; }
 
+/* the  display, storage, battery details around product image */
 .callouts { margin: 0; padding: 0; list-style: none; }
 .callout {
   position: absolute;
@@ -423,6 +424,7 @@ figure { margin: 0; }
 .callout--2 { top: 44%;   right: 20px; text-align: right; }
 .callout--3 { bottom: 9%; left: 20px; }
 
+/* pick which featured item they want to see */
 .picker {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -466,6 +468,7 @@ figure { margin: 0; }
 .picker__item[aria-current="true"] img { opacity: 1; border-color: var(--tint); }
 .picker__item[aria-current="true"] .picker__num { color: var(--tint); }
 
+/* home page "made for what you do" area */
 .light {
   --fg: var(--ink);
   --muted: #6e6d68;
@@ -475,6 +478,7 @@ figure { margin: 0; }
   color: var(--fg);
 }
 
+/* fake header top part for this section */
 .meta-row {
   display: grid;
   grid-template-columns: 1fr auto 1fr;
@@ -491,6 +495,7 @@ figure { margin: 0; }
 
 .light .display { margin: 28px 0 clamp(40px, 6vw, 80px); }
 
+/* for study, commute, create, play feature */
 .uses {
   margin: 0;
   padding: 0;
@@ -526,8 +531,6 @@ figure { margin: 0; }
   white-space: nowrap;
 }
 
-/* Scene images: the grey file shows normally, the colour file on hover.
-   Both sit in the same spot; only one is visible at a time. */
 .use__visual {
   position: relative;
   display: block;
@@ -562,6 +565,7 @@ figure { margin: 0; }
 .use:hover .use__img,
 .use:focus-visible .use__img { transform: scale(1.06); }
 
+/* home page "shop by budget" area */
 .budgets {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -680,6 +684,7 @@ figure { margin: 0; }
 }
 .promises p { margin-top: 8px; padding-left: 18px; color: var(--muted); font-size: 0.9375rem; }
 
+/* product image and cards */
 .stage {
   position: absolute;
   inset: 0;
@@ -763,7 +768,7 @@ figure { margin: 0; }
 .stock.is-low { color: var(--pink); }
 .stock.is-out { color: var(--dim); }
 
-/* product page */
+/* product page (listing.php) */
 .catalogue-head {
   display: flex;
   align-items: flex-end;
@@ -773,6 +778,7 @@ figure { margin: 0; }
   border-bottom: 1px solid var(--line);
 }
 
+/* left side filter, right side products */
 .catalogue {
   display: grid;
   grid-template-columns: 280px minmax(0, 1fr);
@@ -872,7 +878,7 @@ figure { margin: 0; }
 .empty h2 { font-size: var(--step-2); font-weight: 400; letter-spacing: -0.02em; }
 .empty p { max-width: 40ch; margin: 14px auto 28px; color: var(--muted); }
 
-/* product information page */
+/* product information page (product.php) */
 .crumbs {
   display: flex;
   flex-wrap: wrap;
@@ -891,6 +897,7 @@ figure { margin: 0; }
 .crumbs a:hover { color: var(--fg); }
 .crumbs [aria-current] { color: var(--muted); }
 
+/* product detail page*/
 .pdp {
   display: grid;
   grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
@@ -1020,7 +1027,7 @@ figure { margin: 0; }
 .not-found { padding: 96px 0 140px; }
 .not-found .description { margin-bottom: 32px; }
 
-/* footer area */
+/* footer area (footer.php) */
 .site-footer {
   border-top: 1px solid var(--line);
   background: var(--bg);
