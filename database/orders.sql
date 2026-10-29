@@ -89,5 +89,4 @@ CREATE TABLE email_log (
 
 -- staff login: admin@objek.sg / Admin@1234
 INSERT INTO users (id, name, email, password_hash, is_admin, created_at) VALUES
-INSERT INTO users (id, name, email, password_hash, is_admin, created_at) VALUES
 (1, 'OBJEK Staff', 'admin@objek.sg',         '$2y$10$tJ3QS.ZbIbS4xmEG2X3JpuAi.BuKpMlxisQFRYC./.Rr2/viGH2cO', 1, '2026-10-01 09:00:00');
