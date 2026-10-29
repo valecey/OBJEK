@@ -36,7 +36,7 @@ foreach ($featured as $f) {
 
 // counts how many products for each "shop by" section
 $all = $conn->query(
-    "SELECT p.id, p.name, p.image, p.price, p.stock, p.uses, c.slug AS category_slug
+    "SELECT p.id, p.name, p.image, p.price, p.uses, c.slug AS category_slug
      FROM products p JOIN categories c ON c.id = p.category_id
      ORDER BY p.featured DESC, p.id"
 )->fetch_all(MYSQLI_ASSOC);
