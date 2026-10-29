@@ -92,7 +92,7 @@ include 'includes/header.php';
         </p>
       <?php endif; ?>
 
-      <form class="buy" action="add-to-cart.php" method="post" id="buy-form">
+      <form class="buy" action="add-to-cart.php" method="post" id="buy-form" novalidate>
         <input type="hidden" name="product_id" value="<?= (int) $product['id'] ?>">
         <label class="field__label" for="qty">Quantity</label>
         <div class="buy__row">
