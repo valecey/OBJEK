@@ -54,7 +54,7 @@ foreach ($all as $p) {
     }
 }
 
-// pulls price information from listing.php to show product for "shop by budget"
+// matches price information from listing.php to "shop by budget"
 $budgets = [
     'under-200' => ['Under S$200',    'Under 200', 0,   200],
     '200-800'   => ['S$200 to S$800', '200–800',   200, 800],
