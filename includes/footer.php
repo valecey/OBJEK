@@ -19,7 +19,10 @@
         <ul>
           <li><a href="listing.php">All products</a></li>
           <li><a href="cart.php">Your bag</a></li>
-          <li><a href="account.php">Track an order</a></li>
+          <li><a href="track-order.php">Track an order</a></li>
+          <li><a href="contact.php">Contact us</a></li>
+          <li><a href="contact.php#faq">FAQ</a></li>
+          <li><a href="contact.php#terms">Terms &amp; conditions</a></li>
         </ul>
       </div>
 

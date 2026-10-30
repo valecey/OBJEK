@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', function () {
   setUpPicker();
   setUpFilterForm();
   setUpQuantity();
+  setUpContactForm();
 });
 
 // product tilt feature for the home page feature area and the product page
@@ -148,6 +149,84 @@ function setUpQuantity() {
   });
 
   input.addEventListener('input', function () { clearError(input, error); });
+}
+
+// contact form validation
+function setUpContactForm() {
+  var form = document.getElementById('contact-form');
+  if (!form) return;
+
+  var name    = document.getElementById('c-name');
+  var email   = document.getElementById('c-email');
+  var topic   = document.getElementById('c-topic');
+  var order   = document.getElementById('c-order');
+  var message = document.getElementById('c-message');
+  var count   = document.getElementById('c-count');
+
+  var fields = [
+    [name,    document.getElementById('c-name-error')],
+    [email,   document.getElementById('c-email-error')],
+    [topic,   document.getElementById('c-topic-error')],
+    [order,   document.getElementById('c-order-error')],
+    [message, document.getElementById('c-message-error')]
+  ];
+
+  function check(input) {
+    var value = input.value.trim();
+
+    if (input === name) {
+      if (value === '') return 'Enter your name.';
+      if (value.length < 2) return 'Your name should be 2 to 100 characters.';
+    }
+    if (input === email) {
+      if (value === '') return 'Enter your email address.';
+      // something@something.something
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) return 'Enter an email address like name@example.com.';
+    }
+    if (input === topic && value === '') {
+      return 'Choose what your message is about.';
+    }
+    if (input === order) {
+      if (value !== '' && !/^\d{4,7}$/.test(value)) return 'Order numbers are 4 to 7 digits, e.g. 1004.';
+      if (value === '' && topic.value === 'order') return 'Enter your order number so we can find your order.';
+    }
+    if (input === message) {
+      if (value.length < 10) return 'Write at least 10 characters so we know how to help.';
+      if (value.length > 1000) return 'Keep your message under 1000 characters.';
+    }
+    return '';
+  }
+
+  form.addEventListener('submit', function (event) {
+    var firstProblem = null;
+
+    for (var i = 0; i < fields.length; i++) {
+      var problem = check(fields[i][0]);
+      if (problem) {
+        showError(fields[i][0], fields[i][1], problem);
+        if (!firstProblem) firstProblem = fields[i][0];
+      } else {
+        clearError(fields[i][0], fields[i][1]);
+      }
+    }
+
+    if (firstProblem) {
+      event.preventDefault();
+      firstProblem.focus();
+    }
+  });
+
+  // respond to error after change
+  for (var i = 0; i < fields.length; i++) {
+    (function (input, error) {
+      input.addEventListener('input', function () { clearError(input, error); });
+    })(fields[i][0], fields[i][1]);
+  }
+
+  // live character count under the message box
+  message.addEventListener('input', function () {
+    count.textContent = message.value.length;
+  });
 }
 
 // handles error messages
