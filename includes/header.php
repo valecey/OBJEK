@@ -4,6 +4,7 @@ $pageDescription = $pageDescription ?? 'Phones, computers, audio, gaming and cam
 $activeCategory  = $activeCategory  ?? '';
 $navCategories   = get_categories($conn);
 $searchValue     = isset($_GET['q']) ? trim((string) $_GET['q']) : '';
+$hideDeliveryNote = $hideDeliveryNote ?? false;
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -49,11 +50,13 @@ $searchValue     = isset($_GET['q']) ? trim((string) $_GET['q']) : '';
     <!-- left side logo, right side delivery note + cart button -->
     <div class="brand-bar">
       <a class="logo" href="index.php" aria-label="OBJEK home">OBJEK<sup aria-hidden="true">™</sup></a>
-      <p class="brand-bar__meta">
-        <span class="square" aria-hidden="true"></span>
-        Free delivery over S$100<br>
-        <span>Ships across Singapore in 1 to 2 days</span>
-      </p>
+      <?php if (empty($hideDeliveryNote)): ?>
+        <p class="brand-bar__meta">
+          <span class="square" aria-hidden="true"></span>
+          Free delivery over S$100<br>
+          <span>Ships across Singapore in 1 to 2 days</span>
+        </p>
+      <?php endif; ?>
       <a class="btn btn--lime" href="cart.php">Your bag (<?= bag_count() ?>)</a>
     </div>
   </header>
