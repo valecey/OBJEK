@@ -1126,3 +1126,22 @@ figure { margin: 0; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition: none !important; }
 }
+
+/* Cart display: scoped additions for cart.php. */
+.objek-cart__table { overflow-x: auto; margin-top: 28px; }
+.objek-cart .spec-table { min-width: 560px; }
+.objek-cart .spec-table th { width: auto; }
+.objek-cart .spec-table td:first-child { min-width: 200px; }
+.objek-cart .spec-table td:not(:first-child) { white-space: nowrap; }
+.objek-cart .spec-table th:last-child,
+.objek-cart .spec-table td:last-child { text-align: right; }
+.objek-cart__summary { max-width: 600px; margin: 40px 0 0 auto; }
+.objek-cart__summary .section__title { font-size: var(--step-2); }
+.objek-cart__subtotal { display: flex; justify-content: space-between; gap: 24px; margin-top: 24px; }
+.objek-cart__note { margin-top: 12px; color: var(--muted); }
+.objek-cart__actions { display: flex; justify-content: flex-end; margin-top: 28px; }
+@media (max-width: 560px) {
+  .objek-cart__subtotal { flex-direction: column; gap: 8px; }
+  .objek-cart__actions .btn { width: 100%; }
+}
+
