@@ -2,10 +2,10 @@
 require_once __DIR__ . '/includes/db.php';
 require_once __DIR__ . '/includes/functions.php';
 
-// This token ties the sign-out request to this browser session.
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
+
 $message = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'login') {
@@ -88,11 +88,6 @@ include __DIR__ . '/includes/header.php';
     <?php if (!empty($_SESSION['user_id'])): ?>
         <p>Welcome, <?= e($_SESSION['user_name'] ?? '') ?>!</p>
         <p>You are signed in.</p>
-        <form action="logout.php" method="post">
-            <input type="hidden" name="csrf_token"
-                   value="<?= e($_SESSION['csrf_token']) ?>">
-            <button class="btn btn--outline" type="submit">Sign out</button>
-        </form>
     <?php else: ?>
     <?php if ($message !== ''): ?>
     <p><?= e($message) ?></p>
