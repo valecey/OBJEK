@@ -13,20 +13,21 @@ INSERT INTO users (id, name, email, password_hash, is_admin, created_at) VALUES
 -- five demo orders
 INSERT INTO orders (id, user_id, email, first_name, last_name, address, postal_code, phone, email_updates,
                     subtotal, shipping, total, payment_status, status, created_at) VALUES
-(1001, 2,    'zilin.thoe@example.com',   'Zi Lin',     'Thoe',  '21 Clementi Avenue 2, #08-14',  '129812', '+65 9123 4567', 1,  278.00, 0.00,  278.00, 'paid',   'delivered', '2026-10-12 14:05:00'),
-(1002, 2,    'zilin.thoe@example.com',   'Zi Lin',     'Thoe',  '21 Clementi Avenue 2, #08-14',  '129812', '+65 9123 4567', 1,  449.00, 0.00,  449.00, 'paid',   'shipped',   '2026-10-24 09:12:00'),
-(1003, NULL, 'meiling.ong@example.com','Mei Ling', 'Ong',  '5 Jurong West Street 41, #12-301','640005', '+65 8234 5678', 1, 1558.00, 0.00, 1558.00, 'paid',   'packed',    '2026-10-27 20:41:00'),
-(1004, NULL, 'daniel.lim@example.com', 'Daniel',   'Lim',  '88 Tampines Street 81, #03-22', '520088', '+65 9345 6789', 0,   89.00, 8.00,   97.00, 'paid',   'confirmed', '2026-10-29 13:02:00'),
-(1005, 3,    'chengjing.hao@example.com', 'Cheng Jing',    'Hao', '12 Holland Drive, #15-07',      '271012', '+65 8456 7890', 1,  299.00, 0.00,  299.00, 'failed', 'cancelled', '2026-10-28 18:30:00');
+(1001, 2,    'zilin.thoe@example.com',   'Zi Lin',     'Thoe',  '21 Clementi Avenue 2, #08-14',  '129812', '+65 9123 4567', 1,  188.00, 0.00,  188.00, 'paid',   'delivered', '2026-10-12 14:05:00'),
+(1002, 2,    'zilin.thoe@example.com',   'Zi Lin',     'Thoe',  '21 Clementi Avenue 2, #08-14',  '129812', '+65 9123 4567', 1,  499.00, 0.00,  499.00, 'paid',   'shipped',   '2026-10-24 09:12:00'),
+(1003, NULL, 'meiling.ong@example.com','Mei Ling', 'Ong',  '5 Jurong West Street 41, #12-301','640005', '+65 8234 5678', 1, 1028.00, 0.00, 1028.00, 'paid',   'packed',    '2026-10-27 20:41:00'),
+(1004, NULL, 'daniel.lim@example.com', 'Daniel',   'Lim',  '88 Tampines Street 81, #03-22', '520088', '+65 9345 6789', 0,   68.00, 8.00,   76.00, 'paid',   'confirmed', '2026-10-29 13:02:00'),
+(1005, 3,    'chengjing.hao@example.com', 'Cheng Jing',    'Hao', '12 Holland Drive, #15-07',      '271012', '+65 8456 7890', 1,   69.00, 0.00,   69.00, 'failed', 'cancelled', '2026-10-28 18:30:00');
 
-INSERT INTO order_items (order_id, product_id, product_name, variant, unit_price, quantity) VALUES
-(1001, 8,  'Studio Headphones 01', 'Graphite / Wireless audio', 189.00, 1),
-(1001, 11, 'Pad Controller',       'Black / Wireless',           89.00, 1),
-(1002, 1,  'Phone (2a)',           'Black / 128 GB',            449.00, 1),
-(1003, 4,  'Notebook Air 13',      'Silver / 16 GB / 512 GB',  1399.00, 1),
-(1003, 6,  'Low-Profile Keyboard', 'Chalk / Wireless',          159.00, 1),
-(1004, 11, 'Pad Controller',       'Black / Wireless',           89.00, 1),
-(1005, 10, 'Room Speaker',         'Stone / Wi-Fi + Bluetooth', 299.00, 1);
+INSERT INTO order_items (order_id, product_id, colour_id, product_name, variant, unit_price, quantity) VALUES
+(1001, 14, 35, 'JBL Live 460NC',          'Black / Wireless',        149.00, 1),
+(1001, 8,  20, 'Logitech Pebble Mouse 2', 'Graphite / M350s',        39.00, 1),
+(1002, 2,  4,  'Nothing Phone (3a)',      'Blue / 8 GB / 128 GB',    499.00, 1),
+(1003, 4,  8,  'MacBook Neo',             'Silver / 8 GB / 256 GB',  899.00, 1),
+(1003, 7,  18, 'Logitech POP Keys',       'Pink & White / Wireless', 129.00, 1),
+(1004, 9,  25, 'Logitech Desk Mat',       'Rose / Studio Series',    39.00, 1),
+(1004, 10, 27, 'Apple EarPods',           'White / USB-C',           29.00, 1),
+(1005, 15, 39, 'JBL Go 4',                'Black / Bluetooth',       69.00, 1);
 
 INSERT INTO order_status_history (order_id, status, note, created_at) VALUES
 (1001, 'confirmed', '',                                   '2026-10-12 14:05:00'),
@@ -54,4 +55,4 @@ INSERT INTO email_log (order_id, to_email, subject, body, sent, created_at) VALU
 
 INSERT INTO contact_messages (name, email, topic, order_id, message, is_read, created_at) VALUES
 ('Mei Ling Ong', 'meiling.ong@example.com', 'order',   1003, 'Hi, can I change the delivery address for my order to my office? Thanks.', 0, '2026-10-28 09:14:00'),
-('Jun Wei Koh',  'junwei.koh@example.com',  'product', NULL, 'Does the Field Camera X come with a charger in the box?', 1, '2026-10-26 21:03:00');
+('Jun Wei Koh',  'junwei.koh@example.com',  'product', NULL, 'Does the Nikon Z5 II come with a charger in the box?', 1, '2026-10-26 21:03:00');
