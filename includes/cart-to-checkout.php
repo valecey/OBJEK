@@ -11,10 +11,14 @@ function load_cart_items($conn, $cart) {
         return ['items' => [], 'issues' => []];
     }
 
-    // prepare once, then look up each product using its session ID.
-    $stmt = $conn->prepare('SELECT id, name, variant, price, stock FROM products WHERE id = ?');
-    foreach ($cart as $productId => $quantity) {
-        $id = filter_var($productId, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+    // prepare once, then look up each colour (and its product) using its session ID.
+    $stmt = $conn->prepare(
+        'SELECT p.id, p.name, p.variant, p.price, pc.id AS colour_id, pc.name AS colour_name, pc.stock
+         FROM product_colours pc JOIN products p ON p.id = pc.product_id
+         WHERE pc.id = ?'
+    );
+    foreach ($cart as $colourId => $quantity) {
+        $id = filter_var($colourId, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);        
         $qty = filter_var($quantity, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1, 'max_range' => 2147483647]]);
         if ($id === false || $qty === false) {
             $issues[] = 'An item in your bag has an invalid product ID or quantity.';
@@ -36,18 +40,19 @@ function load_cart_items($conn, $cart) {
         $stock = (int) $product['stock'];
         $issue = '';
         if ($stock <= 0) {
-            $issue = 'This product is out of stock.';
+            $issue = 'This colour is out of stock.';
         } elseif ($qty > $stock) {
             $issue = 'Only ' . $stock . ' available; your bag contains ' . $qty . '.';
         }
         if ($issue !== '') {
-            $issues[] = $product['name'] . ': ' . $issue;
+            $issues[] = $product['name'] . ' (' . $product['colour_name'] . '): ' . $issue;            
         }
 
         $items[] = [
             'id' => (int) $product['id'],
+            'colour_id' => (int) $product['colour_id'],
             'name' => $product['name'],
-            'variant' => $product['variant'],
+            'variant' => $product['colour_name'] . ' / ' . $product['variant'],           
             'quantity' => $qty,
             'unit_price_cents' => $unitPriceCents,
             'line_subtotal_cents' => $unitPriceCents * $qty,
