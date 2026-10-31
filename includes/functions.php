@@ -10,7 +10,8 @@ function money($amount) {
 
 // stock status
 const PRODUCT_STOCK_SQL = '(SELECT COALESCE(SUM(pc.stock), 0) FROM product_colours pc WHERE pc.product_id = p.id)';
-function stock_status($stock) {    if ($stock <= 0) {
+function stock_status($stock) {    
+    if ($stock <= 0) {
         return ['Out of stock', 'is-out'];
     }
     if ($stock <= 5) {
