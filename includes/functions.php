@@ -49,7 +49,7 @@ function get_uses() {
     return [
         'study'   => ['Study',   'Laptops, tablets and quiet headphones for lectures and late nights.', 'images/uses/study.svg',   'images/uses/study-grey.svg'],
         'commute' => ['Commute', 'Light, long-lasting gear for the MRT and the bus ride home.',          'images/uses/commute.svg', 'images/uses/commute-grey.svg'],
-        'create'  => ['Create',  'Cameras, lenses and desk gear for photos, video and design work.',       'images/uses/create.svg',  'images/uses/create-grey.svg'],
+        'create'  => ['Create',  'Cameras, laptops and desk gear for photos, video and design work.',       'images/uses/create.svg',  'images/uses/create-grey.svg'],
         'play'    => ['Play',    'Controllers, headsets and speakers for downtime.',                    'images/uses/play.svg',    'images/uses/play-grey.svg'],
     ];
 }
