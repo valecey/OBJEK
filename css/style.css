@@ -1298,3 +1298,9 @@ figure { margin: 0; }
 @media (max-width: 860px) { .objek-checkout__layout { grid-template-columns: 1fr; } }
 @media (max-width: 560px) { .objek-checkout__fields { grid-template-columns: 1fr; } }
 
+
+/* order receipt */
+.objek-confirmation__message { margin: 24px 0; }
+.objek-confirmation__heading { font: inherit; }
+.objek-confirmation__address { white-space: pre-line; overflow-wrap: anywhere; }
+

@@ -8,7 +8,7 @@ $isPost = $_SERVER['REQUEST_METHOD'] === 'POST';
 $postedToken = is_string($_POST['checkout_token'] ?? null) ? $_POST['checkout_token'] : '';
 // The PHP session serializes requests; a repeated successful POST only redirects.
 if ($isPost && $postedToken !== '' && isset($_SESSION['completed_checkout_tokens'][$postedToken])) {
-    header('Location: order-confirmation.php?order_id=' . (int) $_SESSION['completed_checkout_tokens'][$postedToken], true, 303);
+    header('Location: order_confirmation.php?order_id=' . (int) $_SESSION['completed_checkout_tokens'][$postedToken], true, 303);
     exit;
 }
 
@@ -50,7 +50,7 @@ if ($isPost) {
             $_SESSION['completed_checkout_tokens'][$postedToken] = $orderId;
             $_SESSION['cart'] = [];
             unset($_SESSION['checkout_token'], $_SESSION['checkout_cart'], $_SESSION['checkout_subtotal_cents']);
-            header('Location: order-confirmation.php?order_id=' . $orderId, true, 303);
+            header('Location: order_confirmation.php?order_id=' . $orderId, true, 303);
             exit;
         } catch (DomainException $error) {
             $errors[] = $error->getMessage();
