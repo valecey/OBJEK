@@ -66,8 +66,8 @@ if ($use !== '' && !array_key_exists($use, $uses)) {
     $use = '';
 }
 
-// query structure for the filter
-$sql = "SELECT p.*, c.name AS category_name, c.slug AS category_slug
+// stock for all the colours
+$sql = "SELECT p.*, " . PRODUCT_STOCK_SQL . " AS stock, c.name AS category_name, c.slug AS category_slug
         FROM products p
         JOIN categories c ON c.id = p.category_id";
 $where  = [];
@@ -80,10 +80,11 @@ if ($category !== null) {
     $params[] = (int) $category['id'];
 }
 if ($q !== '') {
-    $where[] = '(p.name LIKE ? OR p.tagline LIKE ? OR p.variant LIKE ? OR c.name LIKE ?)';
+    $where[] = '(p.name LIKE ? OR p.tagline LIKE ? OR p.variant LIKE ? OR c.name LIKE ?
+                 OR EXISTS (SELECT 1 FROM product_colours sc WHERE sc.product_id = p.id AND sc.name LIKE ?))';
     $like = '%' . $q . '%';
-    $types .= 'ssss';
-    array_push($params, $like, $like, $like, $like);
+    $types .= 'sssss';
+    array_push($params, $like, $like, $like, $like, $like);
 }
 [, $min, $max] = $priceBands[$price];
 if ($min !== null) {
@@ -97,7 +98,7 @@ if ($max !== null) {
     $params[] = $max;
 }
 if ($inStockOnly) {
-    $where[] = 'p.stock > 0';
+    $where[] = 'EXISTS (SELECT 1 FROM product_colours ic WHERE ic.product_id = p.id AND ic.stock > 0)';
 }
 if ($use !== '') {
     $where[] = '(p.uses = ? OR p.uses LIKE ? OR p.uses LIKE ? OR p.uses LIKE ?)';
@@ -115,7 +116,7 @@ if ($params) {
     $stmt->bind_param($types, ...$params);
 }
 $stmt->execute();
-$products = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+$products = attach_colours($conn, $stmt->get_result()->fetch_all(MYSQLI_ASSOC));
 $count = count($products);
 
 // texts and design
