@@ -9,8 +9,8 @@ function money($amount) {
 }
 
 // stock status
-function stock_status($stock) {
-    if ($stock <= 0) {
+const PRODUCT_STOCK_SQL = '(SELECT COALESCE(SUM(pc.stock), 0) FROM product_colours pc WHERE pc.product_id = p.id)';
+function stock_status($stock) {    if ($stock <= 0) {
         return ['Out of stock', 'is-out'];
     }
     if ($stock <= 5) {
@@ -48,9 +48,92 @@ function get_uses() {
     return [
         'study'   => ['Study',   'Laptops, tablets and quiet headphones for lectures and late nights.', 'images/uses/study.svg',   'images/uses/study-grey.svg'],
         'commute' => ['Commute', 'Light, long-lasting gear for the MRT and the bus ride home.',          'images/uses/commute.svg', 'images/uses/commute-grey.svg'],
-        'create'  => ['Create',  'Cameras, lenses and screens for photos, video and design work.',       'images/uses/create.svg',  'images/uses/create-grey.svg'],
-        'play'    => ['Play',    'Controllers, handhelds and speakers for downtime.',                    'images/uses/play.svg',    'images/uses/play-grey.svg'],
+        'create'  => ['Create',  'Cameras, lenses and desk gear for photos, video and design work.',       'images/uses/create.svg',  'images/uses/create-grey.svg'],
+        'play'    => ['Play',    'Controllers, headsets and speakers for downtime.',                    'images/uses/play.svg',    'images/uses/play-grey.svg'],
     ];
+}
+
+// colours for each product 
+function get_colours($conn, $productIds) {
+    $ids = array_filter(array_map('intval', $productIds));
+    if (!$ids) {
+        return [];
+    }
+    $rows = $conn->query(
+        'SELECT id, product_id, name, hex, image, stock FROM product_colours
+         WHERE product_id IN (' . implode(',', $ids) . ') ORDER BY product_id, sort_order, id'
+    )->fetch_all(MYSQLI_ASSOC);
+
+    $byProduct = [];
+    foreach ($rows as $row) {
+        $byProduct[(int) $row['product_id']][] = $row;
+    }
+    return $byProduct;
+}
+
+function attach_colours($conn, $products) {
+    $colours = get_colours($conn, array_column($products, 'id'));
+    foreach ($products as $i => $p) {
+        $products[$i]['colours'] = $colours[(int) $p['id']] ?? [];
+    }
+    return $products;
+}
+
+function pick_colour($colours, $wantedId = null) {
+    foreach ($colours as $c) {
+        if ((int) $c['id'] === (int) $wantedId) {
+            return $c;
+        }
+    }
+    foreach ($colours as $c) {
+        if ((int) $c['stock'] > 0) {
+            return $c;
+        }
+    }
+    return $colours[0] ?? null;
+}
+
+// colour dots under product card
+function render_swatch_links($p) {
+    if (count($p['colours'] ?? []) < 2) {   // no dots if product only has one colour
+        return;
+    }
+    ?>
+    <ul class="swatches" aria-label="Colours">
+      <?php foreach ($p['colours'] as $c): ?>
+        <li>
+          <a class="swatch<?= (int) $c['stock'] <= 0 ? ' is-sold-out' : '' ?>" style="--swatch: <?= e($c['hex']) ?>"
+             href="product.php?id=<?= (int) $p['id'] ?>&amp;colour=<?= (int) $c['id'] ?>"
+             data-image="images/products/<?= e($c['image']) ?>"
+             title="<?= e($c['name']) ?><?= (int) $c['stock'] <= 0 ? ' (sold out)' : '' ?>">
+            <span class="visually-hidden"><?= e($c['name']) ?></span>
+          </a>
+        </li>
+      <?php endforeach; ?>
+    </ul>
+    <?php
+}
+
+// product colour picker inside add to cart page
+function render_colour_picker($colours, $selected, $prefix = 'colour') {
+    ?>
+    <fieldset class="colour-picker" data-colour-picker>
+      <legend class="field__label">Colour: <span class="colour-picker__chosen" data-colour-name><?= e($selected['name']) ?></span></legend>
+      <div class="colour-picker__options">
+        <?php foreach ($colours as $c):
+            $inputId = $prefix . '-' . (int) $c['id']; ?>
+          <input class="colour-picker__input" type="radio" name="colour_id" id="<?= e($inputId) ?>"
+                 value="<?= (int) $c['id'] ?>" <?= (int) $c['id'] === (int) $selected['id'] ? 'checked' : '' ?>
+                 data-image="images/products/<?= e($c['image']) ?>"
+                 data-name="<?= e($c['name']) ?>" data-stock="<?= (int) $c['stock'] ?>">
+          <label class="swatch swatch--lg<?= (int) $c['stock'] <= 0 ? ' is-sold-out' : '' ?>" for="<?= e($inputId) ?>"
+                 style="--swatch: <?= e($c['hex']) ?>" title="<?= e($c['name']) ?><?= (int) $c['stock'] <= 0 ? ' (sold out)' : '' ?>">
+            <span class="visually-hidden"><?= e($c['name']) ?><?= (int) $c['stock'] <= 0 ? ' (sold out)' : '' ?></span>
+          </label>
+        <?php endforeach; ?>
+      </div>
+    </fieldset>
+    <?php
 }
 
 // tilt effect
@@ -68,9 +151,13 @@ function render_stage($p, $alt = '', $lazy = true) {
 // for product.php and listing.php
 function render_product_card($p) {
     [$stockText, $stockClass] = stock_status((int) $p['stock']);
+    $shown = pick_colour($p['colours'] ?? []);
+    if ($shown) {
+        $p['image'] = $shown['image'];
+    }
     ?>
-    <article class="product-card tint-<?= e($p['category_slug'] ?? '') ?>">
-      <a class="product-card__link" href="product.php?id=<?= (int) $p['id'] ?>">
+    <article class="product-card tint-<?= e($p['category_slug'] ?? '') ?>" data-card>      
+        <a class="product-card__link" href="product.php?id=<?= (int) $p['id'] ?>">
         <div class="product-card__media">
           <span class="product-card__tag"><?= e(file_tag($p['name'])) ?></span>
           <?php render_stage($p, $p['name']); ?>
@@ -82,6 +169,7 @@ function render_product_card($p) {
           <p class="stock <?= $stockClass ?>"><?= e($stockText) ?></p>
         </div>
       </a>
+      <?php render_swatch_links($p); ?>
     </article>
     <?php
 }
