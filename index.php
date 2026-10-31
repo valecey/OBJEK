@@ -4,11 +4,12 @@ require 'includes/functions.php';
 
 // home page feature area 
 $featured = $conn->query(
-    "SELECT p.*, c.name AS category_name, c.slug AS category_slug
+    "SELECT p.*, " . PRODUCT_STOCK_SQL . " AS stock, c.name AS category_name, c.slug AS category_slug
      FROM products p JOIN categories c ON c.id = p.category_id
      WHERE p.featured = 1
      ORDER BY p.id"
 )->fetch_all(MYSQLI_ASSOC);
+$featured = attach_colours($conn, $featured);
 
 // picks out top three specifications for each respective product to put around the product image 
 $specs = [];
@@ -81,7 +82,12 @@ include 'includes/header.php';
     <div class="wrap">
       <?php foreach ($featured as $i => $p):
           $isActive = (int) $p['id'] === $activeId;
-          [$stockText, $stockClass] = stock_status((int) $p['stock']); ?>
+          $colour = pick_colour($p['colours']);
+          if ($colour) {
+              $p['image'] = $colour['image'];
+              $p['stock'] = $colour['stock'];
+          }
+          [$stockText, $stockClass] = stock_status((int) $p['stock']); ?>          
         <article class="slide tint-<?= e($p['category_slug']) ?>" id="slide-<?= (int) $p['id'] ?>"
                  data-slide="<?= (int) $p['id'] ?>" <?= $isActive ? '' : 'hidden' ?>>
           <div class="slide__info">
@@ -90,18 +96,19 @@ include 'includes/header.php';
             <p class="slide__tagline"><?= e($p['tagline']) ?></p>
             <div class="slide__buy">
               <p class="slide__price"><?= money($p['price']) ?></p>
-              <p class="stock <?= $stockClass ?>"><?= e($stockText) ?></p>
+              <p class="stock <?= $stockClass ?>" data-stock-label><?= e($stockText) ?></p>
             </div>
-            <div class="slide__actions">
-              <?php if ((int) $p['stock'] > 0): ?>
-                <form action="add-to-cart.php" method="post">
-                  <input type="hidden" name="product_id" value="<?= (int) $p['id'] ?>">
-                  <input type="hidden" name="qty" value="1">
-                  <button class="btn btn--lime btn--lg" type="submit">Add to bag</button>
-                </form>
-              <?php endif; ?>
-              <a class="btn btn--outline btn--lg" href="product.php?id=<?= (int) $p['id'] ?>">See full specs</a>
-            </div>
+            <form class="slide__form" action="add-to-cart.php" method="post" data-buy-form>
+              <input type="hidden" name="product_id" value="<?= (int) $p['id'] ?>">
+              <input type="hidden" name="qty" value="1">
+              <?php if ($colour) { render_colour_picker($p['colours'], $colour, 'slide' . (int) $p['id']); } ?>
+              <div class="slide__actions">
+                <button class="btn btn--lime btn--lg" type="submit" data-buy-button data-label="Add to bag" <?= (int) $p['stock'] > 0 ? '' : 'disabled' ?>>
+                  <?= (int) $p['stock'] > 0 ? 'Add to bag' : 'Out of stock' ?>
+                </button>
+                <a class="btn btn--outline btn--lg" href="product.php?id=<?= (int) $p['id'] ?>">See full specs</a>
+              </div>
+            </form>            
           </div>
           <figure class="window slide__stage">
             <span class="window__tag"><?= e(file_tag($p['name'])) ?></span>
