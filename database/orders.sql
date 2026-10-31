@@ -45,12 +45,14 @@ CREATE TABLE order_items (
   id            INT AUTO_INCREMENT PRIMARY KEY,
   order_id      INT NOT NULL,
   product_id    INT NOT NULL,
+  colour_id     INT NULL,
   product_name  VARCHAR(100) NOT NULL,
   variant       VARCHAR(100) NOT NULL,
   unit_price    DECIMAL(8,2) NOT NULL,
   quantity      INT NOT NULL,
   FOREIGN KEY (order_id)   REFERENCES orders(id) ON DELETE CASCADE,
-  FOREIGN KEY (product_id) REFERENCES products(id)
+  FOREIGN KEY (product_id) REFERENCES products(id),
+  FOREIGN KEY (colour_id)  REFERENCES product_colours(id) ON DELETE SET NULL
 );
 
 -- order status history
