@@ -40,14 +40,24 @@ $stmt->bind_param('i', $product['id']);
 $stmt->execute();
 $specs = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 
+// colours of each product
+$colours = get_colours($conn, [$product['id']])[(int) $product['id']] ?? [];
+$colour  = pick_colour($colours, filter_input(INPUT_GET, 'colour', FILTER_VALIDATE_INT));
+if ($colour) {
+    $product['image'] = $colour['image'];
+    $product['stock'] = $colour['stock'];
+} else {
+    $product['stock'] = 0;
+}
+
 // list related product from same category
 $stmt = $conn->prepare(
-    "SELECT p.*, c.slug AS category_slug FROM products p JOIN categories c ON c.id = p.category_id
+    "SELECT p.*, " . PRODUCT_STOCK_SQL . " AS stock, c.slug AS category_slug FROM products p JOIN categories c ON c.id = p.category_id
      WHERE p.category_id = ? AND p.id <> ? ORDER BY p.featured DESC, p.id LIMIT 4"
 );
 $stmt->bind_param('ii', $product['category_id'], $product['id']);
 $stmt->execute();
-$related = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+$related = attach_colours($conn, $stmt->get_result()->fetch_all(MYSQLI_ASSOC));
 
 [$stockText, $stockClass] = stock_status((int) $product['stock']);
 $maxQty = max(0, min(10, (int) $product['stock']));   // at most 10 per order
@@ -78,7 +88,7 @@ include 'includes/header.php';
       <h1 class="pdp__name"><?= e($product['name']) ?></h1>
       <p class="pdp__variant"><?= e($product['variant']) ?></p>
       <p class="pdp__price"><?= money($product['price']) ?></p>
-      <p class="stock <?= $stockClass ?>"><?= e($stockText) ?></p>
+      <p class="stock <?= $stockClass ?>" data-stock-label><?= e($stockText) ?></p>
       <p class="pdp__desc"><?= e($product['description']) ?></p>
 
       <?php if ($justAdded > 0): ?>
@@ -88,12 +98,19 @@ include 'includes/header.php';
         </p>
       <?php elseif ($addError !== ''): ?>
         <p class="notice" role="alert" style="margin-top:28px">
-          <?= $addError === 'stock' ? 'We don\'t have that many in stock. Choose a smaller quantity.' : 'Choose a quantity between 1 and 10.' ?>
+          <?php if ($addError === 'stock'): ?>
+            We don't have that many in this colour. Choose a smaller quantity.
+          <?php elseif ($addError === 'colour'): ?>
+            Please choose a colour.
+          <?php else: ?>
+            Choose a quantity between 1 and 10.
+          <?php endif; ?>
         </p>
       <?php endif; ?>
 
-      <form class="buy" action="add-to-cart.php" method="post" id="buy-form" novalidate>
+      <form class="buy" action="add-to-cart.php" method="post" id="buy-form" data-buy-form novalidate>
         <input type="hidden" name="product_id" value="<?= (int) $product['id'] ?>">
+        <?php if ($colour) { render_colour_picker($colours, $colour); } ?>
         <label class="field__label" for="qty">Quantity</label>
         <div class="buy__row">
           <div class="qty" data-max="<?= $maxQty ?>">
@@ -102,11 +119,9 @@ include 'includes/header.php';
                    inputmode="numeric" <?= $maxQty === 0 ? 'disabled' : '' ?>>
             <button type="button" data-step="1" aria-label="Increase quantity">+</button>
           </div>
-          <?php if ($maxQty > 0): ?>
-            <button class="btn btn--lime" type="submit">Add to bag &rarr;</button>
-          <?php else: ?>
-            <button class="btn btn--lime" type="button" disabled>Out of stock</button>
-          <?php endif; ?>
+          <button class="btn btn--lime" type="submit" data-buy-button data-label="Add to bag &rarr;" <?= $maxQty === 0 ? 'disabled' : '' ?>>
+            <?= $maxQty > 0 ? 'Add to bag &rarr;' : 'Out of stock' ?>
+          </button>
         </div>
         <p class="field-error" id="qty-error" hidden></p>
         <ul class="buy__notes">
