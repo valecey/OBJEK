@@ -25,7 +25,7 @@ function place_demo_order($conn, $sessionCart, $values, $userId, $expectedSubtot
         }
         // lock ID order to prevent out of stock sales
         ksort($sessionCart, SORT_NUMERIC);
-        $lock = $conn->prepare('SELECT id FROM products WHERE id = ? FOR UPDATE');
+        $lock = $conn->prepare('SELECT id FROM product_colours WHERE id = ? FOR UPDATE');
         foreach ($sessionCart as $id => $quantity) {
             if (filter_var($id, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]) === false) {
                 throw new DomainException('Your bag contains an invalid product.');
@@ -59,12 +59,12 @@ function place_demo_order($conn, $sessionCart, $values, $userId, $expectedSubtot
         $order->close();
 
         $line = $conn->prepare('INSERT INTO order_items
-            (order_id, product_id, product_name, variant, unit_price, quantity) VALUES (?, ?, ?, ?, ?, ?)');
-        $stock = $conn->prepare('UPDATE products SET stock = stock - ? WHERE id = ? AND stock >= ?');
+            (order_id, product_id, colour_id, product_name, variant, unit_price, quantity) VALUES (?, ?, ?, ?, ?, ?, ?)');
+        $stock = $conn->prepare('UPDATE product_colours SET stock = stock - ? WHERE id = ? AND stock >= ?');
         foreach ($items as $item) {
             $price = number_format($item['unit_price_cents'] / 100, 2, '.', '');
-            $line->execute([$orderId, $item['id'], $item['name'], $item['variant'], $price, $item['quantity']]);
-            $stock->execute([$item['quantity'], $item['id'], $item['quantity']]);
+            $line->execute([$orderId, $item['id'], $item['colour_id'], $item['name'], $item['variant'], $price, $item['quantity']]);
+            $stock->execute([$item['quantity'], $item['colour_id'], $item['quantity']]);
             if ($stock->affected_rows !== 1) {
                 throw new DomainException('Stock changed. Please review your bag and try again.');
             }
