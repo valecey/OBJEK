@@ -3,6 +3,8 @@ document.addEventListener('DOMContentLoaded', function () {
   setUpPicker();
   setUpFilterForm();
   setUpQuantity();
+  setUpColourPickers();
+  setUpCardSwatches();
   setUpContactForm();
 });
 
@@ -123,11 +125,15 @@ function setUpQuantity() {
 
   var input = box.querySelector('input');
   var error = document.getElementById('qty-error');
-  var max = parseInt(box.getAttribute('data-max'), 10) || 0;
+
+  function getMax() {
+    return parseInt(box.getAttribute('data-max'), 10) || 0;
+  }
 
   var buttons = box.querySelectorAll('button[data-step]');
   for (var i = 0; i < buttons.length; i++) {
     buttons[i].addEventListener('click', function () {
+      var max = getMax();
       var step = parseInt(this.getAttribute('data-step'), 10);
       var next = (parseInt(input.value, 10) || 1) + step;
       input.value = Math.min(Math.max(next, 1), Math.max(max, 1));
@@ -138,17 +144,101 @@ function setUpQuantity() {
   form.addEventListener('submit', function (event) {
     var raw = input.value.trim();
     var qty = Number(raw);
+    var max = getMax();
 
     if (!/^\d+$/.test(raw) || qty < 1) {
       event.preventDefault();
       showError(input, error, 'Enter a whole number of 1 or more.');
-    } else if (qty > max) {
+    } else if (max === 0) {
+      event.preventDefault();
+      showError(input, error, 'This colour is out of stock. Choose another colour.');
+    } else if (qty > max) {      
       event.preventDefault();
       showError(input, error, 'Only ' + max + ' can be added to one order.');
     }
   });
 
   input.addEventListener('input', function () { clearError(input, error); });
+}
+
+function stockStatus(stock) {
+  if (stock <= 0) return ['Out of stock', 'is-out'];
+  if (stock <= 5) return ['Only ' + stock + ' left', 'is-low'];
+  return ['In stock / Ready to ship', 'is-in'];
+}
+
+// colour picker on product.php and index.php
+function setUpColourPickers() {
+  var pickers = document.querySelectorAll('[data-colour-picker]');
+  for (var i = 0; i < pickers.length; i++) {
+    initColourPicker(pickers[i]);
+  }
+}
+
+function initColourPicker(picker) {
+  var form   = picker.closest('[data-buy-form]');
+  var area   = picker.closest('.pdp, .slide');
+  if (!form || !area) return;
+
+  var img    = area.querySelector('.stage__img');
+  var label  = area.querySelector('[data-stock-label]');
+  var name   = picker.querySelector('[data-colour-name]');
+  var button = form.querySelector('[data-buy-button]');
+  var qtyBox = form.querySelector('.qty');
+  var inputs = picker.querySelectorAll('input[name="colour_id"]');
+
+  function update(input) {
+    var stock = parseInt(input.getAttribute('data-stock'), 10) || 0;
+    var status = stockStatus(stock);
+
+    if (img) img.src = input.getAttribute('data-image');
+    if (name) name.textContent = input.getAttribute('data-name');
+    if (label) {
+      label.textContent = status[0];
+      label.className = 'stock ' + status[1];
+    }
+    if (button) {
+      button.disabled = stock <= 0;
+      button.innerHTML = stock > 0 ? button.getAttribute('data-label') : 'Out of stock';
+    }
+    if (qtyBox) {
+      var max = Math.min(stock, 10);
+      var qty = qtyBox.querySelector('input');
+      qtyBox.setAttribute('data-max', max);
+      qty.max = Math.max(max, 1);
+      qty.disabled = max === 0;
+      if ((parseInt(qty.value, 10) || 1) > max) qty.value = Math.max(max, 1);
+    }
+  }
+
+  for (var i = 0; i < inputs.length; i++) {
+    inputs[i].addEventListener('change', function () { update(this); });
+  }
+}
+
+// coloured dots feature
+function setUpCardSwatches() {
+  var cards = document.querySelectorAll('[data-card]');
+  for (var i = 0; i < cards.length; i++) {
+    initCardSwatches(cards[i]);
+  }
+}
+
+function initCardSwatches(card) {
+  var img = card.querySelector('.stage__img');
+  var dots = card.querySelectorAll('.swatch[data-image]');
+  if (!img || !dots.length) return;
+
+  var original = img.getAttribute('src');
+  function show() { img.src = this.getAttribute('data-image'); }
+  function reset() { img.src = original; }
+
+  for (var i = 0; i < dots.length; i++) {
+    dots[i].addEventListener('mouseenter', show);
+    dots[i].addEventListener('focus', show);
+    dots[i].addEventListener('mouseleave', reset);
+    dots[i].addEventListener('blur', reset);
+  }
 }
 
 // contact form validation
