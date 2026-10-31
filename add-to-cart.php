@@ -1,5 +1,5 @@
 <?php
-// for "add to bag" on product.php.
+// for "add to bag" on product.php
 require 'includes/db.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
