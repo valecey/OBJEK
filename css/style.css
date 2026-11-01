@@ -642,7 +642,7 @@ figure { margin: 0; }
 }
 
 /* section area */
-.section { padding: clamp(56px, 8vw, 104px) 0; }
+.section { padding-block: clamp(56px, 8vw, 104px); }
 .section--tight { padding-top: 0; }
 .section--line { border-top: 1px solid var(--line); }
 
@@ -807,6 +807,8 @@ figure { margin: 0; }
 }
 
 .field input[type="search"],
+.field input[type="password"],
+.field input[type="number"],
 .field input[type="text"],
 .field input[type="email"],
 .field select, .field textarea {
