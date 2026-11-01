@@ -25,7 +25,7 @@ if (!$user || (int) $user['is_admin'] !== 1) {
     exit('Staff access is required.');
 }
 
-// Each order can move forward by one step. Cancellation is a separate feature.
+// Orders move forward one step, or can be cancelled before they are packed.
 $nextStatuses = [
     'confirmed' => 'packed',
     'packed' => 'shipped',
@@ -65,8 +65,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 throw new DomainException('Order not found.');
             }
             $nextStatus = $nextStatuses[$currentOrder['status']] ?? null;
-            if ($currentOrder['payment_status'] !== 'paid' || $nextStatus === null || $newStatus !== $nextStatus) {
+            $canCancel = $currentOrder['status'] === 'confirmed' && $newStatus === 'cancelled';
+            $canAdvance = $nextStatus !== null && $newStatus === $nextStatus;
+            if ($currentOrder['payment_status'] !== 'paid' || (!$canCancel && !$canAdvance)) {
                 throw new DomainException('That status change is not allowed. Review the current order status.');
+            }
+
+            if ($canCancel) {
+                // The locked confirmed order can be cancelled only once.
+                // Group by colour in case the same variant occurs on several lines.
+                $stmt = $conn->prepare('SELECT colour_id, SUM(quantity) AS quantity
+                    FROM order_items WHERE order_id = ? GROUP BY colour_id ORDER BY colour_id');
+                $stmt->bind_param('i', $orderId);
+                $stmt->execute();
+                $orderedColours = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+                $stmt->close();
+                if (!$orderedColours) {
+                    throw new DomainException('This order has no saved items. Review it before cancelling.');
+                }
+
+                $restore = $conn->prepare('UPDATE product_colours SET stock = stock + ? WHERE id = ?');
+                foreach ($orderedColours as $item) {
+                    $colourId = (int) $item['colour_id'];
+                    $quantity = (int) $item['quantity'];
+                    if ($colourId < 1 || $quantity < 1) {
+                        throw new DomainException('An item has a missing colour or invalid quantity. Review the order before cancelling.');
+                    }
+                    $restore->bind_param('ii', $quantity, $colourId);
+                    $restore->execute();
+                    if ($restore->affected_rows !== 1) {
+                        throw new DomainException('A colour is no longer available. Stock could not be restored.');
+                    }
+                }
+                $restore->close();
+                if ($note === '') {
+                    $note = 'Cancelled by staff. Stock restored. Demo payment; no real refund was processed.';
+                }
             }
 
             $stmt = $conn->prepare('UPDATE orders SET status = ? WHERE id = ?');
@@ -79,7 +113,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->execute();
             $stmt->close();
 
-            // Save both the current status and its history together.
+            // Save status, history, and any restored stock together.
             $conn->commit();
             $_SESSION['admin_order_message'] = 'Order #' . $orderId . ' updated to ' . $newStatus . '.';
             header('Location: admin-orders.php', true, 303);
@@ -114,6 +148,7 @@ include __DIR__ . '/includes/header.php';
 <main id="main" class="wrap section">
     <h1 class="page-title">Manage orders</h1>
     <p>You are signed in as staff.</p>
+    <p>Confirmed orders can be cancelled and their stock restored. Packed, shipped, and delivered orders cannot be cancelled here.</p>
     <?php if ($error !== ''): ?><p class="notice" role="alert"><?= e($error) ?></p><?php endif; ?>
     <?php if ($message !== ''): ?><p class="notice" role="status"><?= e($message) ?></p><?php endif; ?>
     <?php if (!$orders): ?>
@@ -153,6 +188,9 @@ include __DIR__ . '/includes/header.php';
                                         <label for="status-<?= (int) $order['id'] ?>">Next status</label>
                                         <select id="status-<?= (int) $order['id'] ?>" name="status" required>
                                             <option value="<?= e($nextStatus) ?>"><?= e(ucfirst($nextStatus)) ?></option>
+                                            <?php if ($order['status'] === 'confirmed'): ?>
+                                                <option value="cancelled">Cancel order (restore stock)</option>
+                                            <?php endif; ?>
                                         </select>
                                         <label for="note-<?= (int) $order['id'] ?>">Customer-visible note (optional)</label>
                                         <input id="note-<?= (int) $order['id'] ?>" type="text" name="note" maxlength="255">

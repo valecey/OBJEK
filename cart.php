@@ -3,6 +3,13 @@ require_once __DIR__ . '/includes/db.php';
 require_once __DIR__ . '/includes/functions.php';
 require_once __DIR__ . '/includes/cart-to-checkout.php';
 
+// protect the cart forms with a token for this browser session
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+$message = $_SESSION['cart_message'] ?? '';
+unset($_SESSION['cart_message']);
+
 //load from dbs
 $cart = load_cart_items($conn, $_SESSION['cart'] ?? []);
 $items = $cart['items'];
@@ -18,6 +25,10 @@ include __DIR__ . '/includes/header.php';
     <h1 class="page-title">Your bag</h1>
     <a class="text-link" href="listing.php">Continue shopping &nearr;</a>
   </div>
+
+  <?php if ($message !== ''): ?>
+    <p class="notice" role="status"><?= e($message) ?></p>
+  <?php endif; ?>
 
   <?php if ($issues): ?>
     <div class="notice" role="alert">
@@ -47,6 +58,7 @@ include __DIR__ . '/includes/header.php';
               <th scope="col">Price</th>
               <th scope="col">Quantity</th>
               <th scope="col">Subtotal</th>
+              <th scope="col">Action</th>
             </tr>
           </thead>
           <tbody>
@@ -60,8 +72,29 @@ include __DIR__ . '/includes/header.php';
                   <?php endif; ?>
                 </td>
                 <td><?= money($item['unit_price_cents'] / 100) ?></td>
-                <td><?= $item['quantity'] ?></td>
+                <td>
+                  <form action="update-cart.php" method="post">
+                    <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
+                    <input type="hidden" name="action" value="update">
+                    <input type="hidden" name="colour_id" value="<?= (int) $item['colour_id'] ?>">
+                    <label class="visually-hidden" for="qty-<?= (int) $item['colour_id'] ?>">
+                      Quantity for <?= e($item['name']) ?>
+                    </label>
+                    <input type="number" name="qty" id="qty-<?= (int) $item['colour_id'] ?>"
+                           value="<?= (int) $item['quantity'] ?>" min="1" max="10" required>
+                    <button class="btn btn--outline" type="submit">Update</button>
+                  </form>
+                </td>
                 <td><?= money($item['line_subtotal_cents'] / 100) ?></td>
+                <td>
+                  <form action="update-cart.php" method="post">
+                    <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
+                    <input type="hidden" name="action" value="remove">
+                    <input type="hidden" name="colour_id" value="<?= (int) $item['colour_id'] ?>">
+                    <button class="btn btn--outline" type="submit"
+                            aria-label="Remove <?= e($item['name'] . ' ' . $item['variant']) ?>">Remove</button>
+                  </form>
+                </td>
               </tr>
             <?php endforeach; ?>
           </tbody>
@@ -80,6 +113,13 @@ include __DIR__ . '/includes/header.php';
   <?php endif; ?>
 
   <div class="objek-cart__actions">
+    <?php if (!empty($_SESSION['cart'])): ?>
+      <form action="update-cart.php" method="post">
+        <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
+        <input type="hidden" name="action" value="clear">
+        <button class="btn btn--outline" type="submit">Clear cart</button>
+      </form>
+    <?php endif; ?>
     <?php if ($canCheckout): ?>
       <a class="btn btn--lime" href="checkout.php">Proceed to checkout &rarr;</a>
     <?php else: ?>

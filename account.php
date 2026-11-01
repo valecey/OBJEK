@@ -38,46 +38,6 @@ if ($user && password_verify($password, $user['password_hash'])) {
 }
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST'
-    && ($_POST['action'] ?? '') === 'register') {
-
-    $name = trim($_POST['name'] ?? '');
-    $email = trim($_POST['email'] ?? '');
-    $password = $_POST['password'] ?? '';
-
-    if ($name === '' || mb_strlen($name) > 100) {
-        $message = 'Enter a name of up to 100 characters.';
-    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)
-        || strlen($email) > 255) {
-        $message = 'Enter a valid email address.';
-    } elseif (strlen($password) < 8 || strlen($password) > 72) {
-        $message = 'Use a password between 8 and 72 bytes.';
-    } else {
-        $passwordHash = password_hash($password, PASSWORD_DEFAULT);
-
-        try {
-            $stmt = $conn->prepare(
-                'INSERT INTO users
-                 (name, email, password_hash, is_admin)
-                 VALUES (?, ?, ?, 0)'
-            );
-
-            $stmt->bind_param('sss', $name, $email, $passwordHash);
-            $stmt->execute();
-            $stmt->close();
-
-            $message = 'Account created. You can now sign in.';
-        } catch (mysqli_sql_exception $error) {
-            if ($error->getCode() === 1062) {
-                $message = 'That email is already registered.';
-            } else {
-                error_log($error->getMessage());
-                $message = 'Could not create the account. Please try again.';
-            }
-        }
-    }
-}
-
 // past orders for the signed-in customer
 $myOrders = [];
 if (!empty($_SESSION['user_id'])) {
@@ -160,24 +120,9 @@ include __DIR__ . '/includes/header.php';
             </section>
 
             <section aria-labelledby="register-title">
-                <h2 class="section__title" id="register-title">Create account</h2>
-                <form class="objek-form" method="post" action="account.php">
-                    <input type="hidden" name="action" value="register">
-                    <div class="field">
-                        <label class="field__label" for="register-name">Name</label>
-                        <input type="text" id="register-name" name="name" maxlength="100" autocomplete="name" required>
-                    </div>
-                    <div class="field">
-                        <label class="field__label" for="register-email">Email</label>
-                        <input type="email" id="register-email" name="email" maxlength="255" autocomplete="email" required>
-                    </div>
-                    <div class="field">
-                        <label class="field__label" for="register-password">Password</label>
-                        <input type="password" id="register-password" name="password" minlength="8" maxlength="72"
-                               autocomplete="new-password" required>
-                    </div>
-                    <button class="btn btn--lime" type="submit">Create account</button>
-                </form>
+                <h2 class="section__title" id="register-title">New to OBJEK?</h2>
+                <p class="objek-form__message">Create an account to view your orders in one place.</p>
+                <a class="btn btn--outline" href="register.php">Create account</a>
             </section>
         </div>
     <?php endif; ?>
