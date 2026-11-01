@@ -121,7 +121,7 @@ include __DIR__ . '/includes/header.php';
                     <tbody>
                         <?php foreach ($myOrders as $o): ?>
                             <tr>
-                                <td><a href="order_confirmation.php?order_id=<?= (int) $o['id'] ?>">#<?= (int) $o['id'] ?></a></td>
+                                <td><a href="order-confirmation.php?order_id=<?= (int) $o['id'] ?>">#<?= (int) $o['id'] ?></a></td>
                                 <td><?= e($o['created_at']) ?></td>
                                 <td><?= e(ucfirst($o['status'])) ?></td>
                                 <td><?= money($o['total']) ?></td>
