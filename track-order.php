@@ -105,7 +105,7 @@ include __DIR__ . '/includes/header.php';
 <?php endif; ?>
 
 <a class="btn btn--outline"
-   href="order_confirmation.php?order_id=<?= (int) $order['id'] ?>">
+   href="order-confirmation.php?order_id=<?= (int) $order['id'] ?>">
     View order details
 </a>
 <?php endif; ?>
