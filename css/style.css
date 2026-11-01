@@ -1341,4 +1341,25 @@ figure { margin: 0; }
 .objek-confirmation__heading { font: inherit; }
 .objek-confirmation__address { white-space: pre-line; overflow-wrap: anywhere; }
 
+/* page headings on cart, checkout, confirmation, account and track-order */
+.page-title {
+  font-size: var(--display-md);
+  font-weight: 400;
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+}
+
+/* sign in, create account and track order forms */
+.objek-form { display: grid; gap: 20px; max-width: 480px; margin-top: 28px; }
+.objek-form .btn { justify-self: start; }
+.objek-form__message { margin-top: 24px; }
+.objek-account__heading { margin-top: 48px; margin-bottom: 20px; font-size: var(--step-2); }
+.objek-account__signout { margin-top: 32px; }
+.objek-track { max-width: 640px; margin-top: 40px; }
+.objek-track .panel__body > * + * { margin-top: 8px; }
+.objek-track .objek-track__heading { margin-top: 24px; }
+.objek-track__history { margin: 0; padding-left: 20px; }
+.objek-track__history li + li { margin-top: 10px; }
+.objek-track__history p { color: var(--muted); }
+.objek-track .objek-track__link { margin-top: 20px; }
 
