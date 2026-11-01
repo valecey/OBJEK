@@ -78,6 +78,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'
     }
 }
 
+// past orders for the signed-in customer
+$myOrders = [];
+if (!empty($_SESSION['user_id'])) {
+    $stmt = $conn->prepare(
+        'SELECT id, status, total, created_at
+         FROM orders
+         WHERE user_id = ?
+         ORDER BY created_at DESC'
+    );
+    $stmt->bind_param('i', $_SESSION['user_id']);
+    $stmt->execute();
+    $myOrders = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    $stmt->close();
+
+    // these are their own orders, so let them open the full order page
+    foreach ($myOrders as $o) {
+        $_SESSION['confirmation_order_ids'][$o['id']] = true;
+    }
+}
+
 $pageTitle = 'Account | OBJEK';
 include __DIR__ . '/includes/header.php';
 ?>
