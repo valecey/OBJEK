@@ -106,54 +106,80 @@ include __DIR__ . '/includes/header.php';
     <h1 class="page-title">Your account</h1>
 
     <?php if (!empty($_SESSION['user_id'])): ?>
-        <p>Welcome, <?= e($_SESSION['user_name'] ?? '') ?>!</p>
-        <p>You are signed in.</p>
+        <p class="objek-form__message">Welcome, <?= e($_SESSION['user_name'] ?? '') ?>! You are signed in as <?= e($_SESSION['user_email'] ?? '') ?>.</p>
+
+        <h2 class="section__title objek-account__heading">Your orders</h2>
+        <?php if (!$myOrders): ?>
+            <p>You haven't placed any orders yet. <a class="text-link" href="listing.php">Start shopping &nearr;</a></p>
+        <?php else: ?>
+            <div class="objek-cart__table" role="region" aria-label="Your orders" tabindex="0">
+                <table class="spec-table">
+                    <caption class="visually-hidden">Orders placed with this account</caption>
+                    <thead>
+                        <tr><th scope="col">Order</th><th scope="col">Placed</th><th scope="col">Status</th><th scope="col">Total</th></tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($myOrders as $o): ?>
+                            <tr>
+                                <td><a href="order_confirmation.php?order_id=<?= (int) $o['id'] ?>">#<?= (int) $o['id'] ?></a></td>
+                                <td><?= e($o['created_at']) ?></td>
+                                <td><?= e(ucfirst($o['status'])) ?></td>
+                                <td><?= money($o['total']) ?></td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        <?php endif; ?>
+
+        <!-- logout.php only accepts a form post with this token, so other sites can't sign people out -->
+        <form class="objek-account__signout" action="logout.php" method="post">
+            <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
+            <button class="btn btn--outline" type="submit">Sign out</button>
+        </form>
     <?php else: ?>
-    <?php if ($message !== ''): ?>
-    <p><?= e($message) ?></p>
-    <?php endif; ?>
+        <?php if ($message !== ''): ?>
+            <p class="notice objek-form__message" role="alert"><?= e($message) ?></p>
+        <?php endif; ?>
 
-    <h2>Sign in</h2>
-    <form method="post" action="account.php" >
-        <input type="hidden" name="action" value="login">
+        <div class="objek-checkout__layout">
+            <section aria-labelledby="signin-title">
+                <h2 class="section__title" id="signin-title">Sign in</h2>
+                <form class="objek-form" method="post" action="account.php">
+                    <input type="hidden" name="action" value="login">
+                    <div class="field">
+                        <label class="field__label" for="login-email">Email</label>
+                        <input type="email" name="email" id="login-email" autocomplete="username" required>
+                    </div>
+                    <div class="field">
+                        <label class="field__label" for="login-password">Password</label>
+                        <input type="password" name="password" id="login-password" autocomplete="current-password" required>
+                    </div>
+                    <button type="submit" class="btn btn--lime">Sign in</button>
+                </form>
+            </section>
 
-        <p>
-            <label for="login-email">Email</label>
-            <input type="email" name="email" id="login-email" autocomplete="username" required>
-        </p>
-        <p>
-            <label for="login-password">Password</label>
-            <input type="password" name="password" id="login-password" autocomplete="current-password" required>
-        </p>
-        <p>
-            <button type="submit" class="btn btn--lime">Sign in</button>
-        </p>   
-    </form>
-
-    <h2>Create account</h2>
-    <form method="post" action="account.php">
-        <input type="hidden" name="action" value="register">
-
-        <p>
-            <label for="register-name">Name</label>
-            <input id="register-name" name="name"
-                   maxlength="100" autocomplete="name" required>
-        </p>
-        <p>
-            <label for="register-email">Email</label>
-            <input type="email" id="register-email" name="email"
-                   maxlength="255" autocomplete="email" required>
-        </p>
-        <p>
-            <label for="register-password">Password</label>
-            <input type="password" id="register-password" name="password"
-                   minlength="8" maxlength="72"
-                   autocomplete="new-password" required>
-        </p>
-        <p>
-            <button class="btn btn--lime" type="submit">Create account</button>
-        </p>
-    </form>
+            <section aria-labelledby="register-title">
+                <h2 class="section__title" id="register-title">Create account</h2>
+                <form class="objek-form" method="post" action="account.php">
+                    <input type="hidden" name="action" value="register">
+                    <div class="field">
+                        <label class="field__label" for="register-name">Name</label>
+                        <input type="text" id="register-name" name="name" maxlength="100" autocomplete="name" required>
+                    </div>
+                    <div class="field">
+                        <label class="field__label" for="register-email">Email</label>
+                        <input type="email" id="register-email" name="email" maxlength="255" autocomplete="email" required>
+                    </div>
+                    <div class="field">
+                        <label class="field__label" for="register-password">Password</label>
+                        <input type="password" id="register-password" name="password" minlength="8" maxlength="72"
+                               autocomplete="new-password" required>
+                    </div>
+                    <button class="btn btn--lime" type="submit">Create account</button>
+                </form>
+            </section>
+        </div>
     <?php endif; ?>
 </main>
 
