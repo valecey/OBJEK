@@ -53,7 +53,7 @@ include __DIR__ . '/includes/header.php';
             <?php foreach ($items as $item): ?>
               <tr>
                 <td>
-                  <a href="product.php?id=<?= $item['id'] ?>"><?= e($item['name']) ?></a>
+                  <a href="product.php?id=<?= $item['id'] ?>&amp;colour=<?= $item['colour_id'] ?>"><?= e($item['name']) ?></a>
                   <p class="product-card__variant"><?= e($item['variant']) ?></p>
                   <?php if ($item['issue'] !== ''): ?>
                     <p class="field-error"><?= e($item['issue']) ?></p>
