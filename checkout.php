@@ -36,7 +36,7 @@ if ($isPost) {
     }
     if (!$errors) {
         try {
-            // The display snapshot prevents silently charging a changed price.
+            // display snapshot does not charge a changed price, tells you to look again
             if (($_SESSION['checkout_cart'] ?? null) !== ($_SESSION['cart'] ?? [])) {
                 throw new DomainException('Your bag changed. Review the summary and submit again.');
             }
@@ -120,7 +120,7 @@ include __DIR__ . '/includes/header.php';
       </div>
       <label class="choice objek-checkout__updates">
         <input type="checkbox" name="email_updates" value="1" <?= $values['email_updates'] ? 'checked' : '' ?>>
-        Receive order status updates by email
+        Email status updates (demo only; no emails sent)
       </label>
     </section>
     <aside class="panel objek-checkout__summary" aria-labelledby="summary-title">
@@ -142,7 +142,7 @@ include __DIR__ . '/includes/header.php';
           <div><dt>Delivery</dt><dd><?= money($totals['shipping_cents'] / 100) ?></dd></div>
           <div class="objek-checkout__total"><dt>Total</dt><dd><?= money($totals['total_cents'] / 100) ?></dd></div>
         </dl>
-        <p class="notice">Demo payment &mdash; no money will be charged. Placing this order simulates a successful payment.</p>
+        <p class="notice">Demo payment &mdash; no money will be charged. Placing this order simulates a successful payment. Email notifications are recorded only; no emails are sent.</p>
         <button class="btn btn--lime objek-checkout__submit" type="submit"
                 <?= (!$items || $cart['issues']) ? 'disabled' : '' ?>>Place demo order &rarr;</button>
       </div>

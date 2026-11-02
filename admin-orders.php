@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/includes/db.php';
 require_once __DIR__ . '/includes/functions.php';
+require_once __DIR__ . '/includes/mail.php';
 
 // visitors must sign in first
 if (empty($_SESSION['user_id'])) {
@@ -54,8 +55,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         $conn->begin_transaction();
         try {
-            // Lock the row so two staff requests cannot advance it together.
-            $stmt = $conn->prepare('SELECT status, payment_status FROM orders WHERE id = ? FOR UPDATE');
+            // lock the row so two staff requests cannot advance it together
+            $stmt = $conn->prepare('SELECT status, payment_status, email, first_name, email_updates FROM orders WHERE id = ? FOR UPDATE');
             $stmt->bind_param('i', $orderId);
             $stmt->execute();
             $currentOrder = $stmt->get_result()->fetch_assoc();
@@ -72,8 +73,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
 
             if ($canCancel) {
-                // The locked confirmed order can be cancelled only once.
-                // Group by colour in case the same variant occurs on several lines.
+                // locked confirmed order can be cancelled only once
+                // group by colour in case the same variant occurs on several lines
                 $stmt = $conn->prepare('SELECT colour_id, SUM(quantity) AS quantity
                     FROM order_items WHERE order_id = ? GROUP BY colour_id ORDER BY colour_id');
                 $stmt->bind_param('i', $orderId);
@@ -113,7 +114,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->execute();
             $stmt->close();
 
-            // Save status, history, and any restored stock together.
+            // only opted-in customers receive a demo status-notification record
+            if ((int) $currentOrder['email_updates'] === 1) {
+                $subject = 'OBJEK order #' . $orderId . ' is ' . $newStatus;
+                $body = 'Hi ' . $currentOrder['first_name'] . ",\n\n"
+                    . 'Your OBJEK order #' . $orderId . ' is now ' . $newStatus . ".\n";
+                if ($note !== '') { $body .= "\n" . $note . "\n"; }
+                $body .= "\nDemo notification: recorded only; no email was sent. No real payment or refund was processed.\n";
+                log_email($conn, $currentOrder['email'], $subject, $body, $orderId);
+            }
+
+            // save status, history, notification log, and restored stock together
             $conn->commit();
             $_SESSION['admin_order_message'] = 'Order #' . $orderId . ' updated to ' . $newStatus . '.';
             header('Location: admin-orders.php', true, 303);
@@ -148,6 +159,7 @@ include __DIR__ . '/includes/header.php';
 <main id="main" class="wrap section">
     <h1 class="page-title">Manage orders</h1>
     <p>You are signed in as staff.</p>
+    <p>Demo email notifications are logged for opted-in customers. No emails are sent.</p>
     <p>Confirmed orders can be cancelled and their stock restored. Packed, shipped, and delivered orders cannot be cancelled here.</p>
     <?php if ($error !== ''): ?><p class="notice" role="alert"><?= e($error) ?></p><?php endif; ?>
     <?php if ($message !== ''): ?><p class="notice" role="status"><?= e($message) ?></p><?php endif; ?>

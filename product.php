@@ -100,6 +100,8 @@ include 'includes/header.php';
         <p class="notice" role="alert" style="margin-top:28px">
           <?php if ($addError === 'stock'): ?>
             We don't have that many in this colour. Choose a smaller quantity.
+          <?php elseif ($addError === 'limit'): ?>
+            Your bag can contain at most 10 of each colour. Open your bag to change an existing quantity.
           <?php elseif ($addError === 'colour'): ?>
             Please choose a colour.
           <?php else: ?>

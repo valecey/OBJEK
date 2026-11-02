@@ -8,16 +8,22 @@ if (!empty($_SESSION['user_id'])) {
     exit;
 }
 
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
 $message = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST'
     && ($_POST['action'] ?? '') === 'register') {
 
-    $name = trim($_POST['name'] ?? '');
-    $email = trim($_POST['email'] ?? '');
-    $password = $_POST['password'] ?? '';
+    $name = is_string($_POST['name'] ?? null) ? trim($_POST['name']) : '';
+    $email = is_string($_POST['email'] ?? null) ? trim($_POST['email']) : '';
+    $password = is_string($_POST['password'] ?? null) ? $_POST['password'] : '';
+    $token = $_POST['csrf_token'] ?? '';
 
-    if ($name === '' || mb_strlen($name) > 100) {
+    if (!is_string($token) || !hash_equals($_SESSION['csrf_token'], $token)) {
+        $message = 'Your registration form expired. Refresh and try again.';
+    } elseif ($name === '' || mb_strlen($name) > 100) {
         $message = 'Enter a name of up to 100 characters.';
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)
         || strlen($email) > 255) {
@@ -62,6 +68,7 @@ include __DIR__ . '/includes/header.php';
 
     <form class="objek-form" method="post" action="register.php">
         <input type="hidden" name="action" value="register">
+        <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
         <div class="field">
             <label class="field__label" for="register-name">Name</label>
             <input type="text" id="register-name" name="name" maxlength="100" autocomplete="name" required>

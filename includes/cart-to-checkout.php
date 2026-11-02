@@ -11,7 +11,7 @@ function load_cart_items($conn, $cart) {
         return ['items' => [], 'issues' => []];
     }
 
-    // prepare once, then look up each colour (and its product) using its session ID.
+    // prepare once, then look up each colour (and its product) using its session ID
     $stmt = $conn->prepare(
         'SELECT p.id, p.name, p.variant, p.price, pc.id AS colour_id, pc.name AS colour_name, pc.stock
          FROM product_colours pc JOIN products p ON p.id = pc.product_id
@@ -39,7 +39,10 @@ function load_cart_items($conn, $cart) {
             + (int) str_pad($priceParts[1] ?? '', 2, '0');
         $stock = (int) $product['stock'];
         $issue = '';
-        if ($stock <= 0) {
+        // keep legacy over-limit items visible so customers can fix them, but block checkout until every colour is within the same limit
+        if ($qty > 10) {
+            $issue = 'Maximum 10 of each colour per order. Update the quantity in your bag before checkout.';
+        } elseif ($stock <= 0) {
             $issue = 'This colour is out of stock.';
         } elseif ($qty > $stock) {
             $issue = 'Only ' . $stock . ' available; your bag contains ' . $qty . '.';
@@ -68,8 +71,7 @@ function calculate_cart_totals($items) {
     foreach ($items as $item) {
         $subtotalCents += $item['line_subtotal_cents'];
     }
-    // Calculate in cents: free at S$100 or more, otherwise S$8.
-    // An empty bag has no delivery charge.
+    // calculate in cents: free at S$100 or more, otherwise S$8
     $shippingCents = $items && $subtotalCents < 10000 ? 800 : 0;
     return [
         'subtotal_cents' => $subtotalCents,

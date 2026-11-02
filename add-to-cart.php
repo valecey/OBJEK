@@ -40,6 +40,11 @@ if ($qty === false || $qty === null || $qty < 1 || $qty > 10) {
 
 // check if quantity exceeds the stock of the selected color
 $alreadyInBag = $_SESSION['cart'][$colourId] ?? 0;
+// The limit applies to the accumulated quantity, not just this submission.
+if ($alreadyInBag + $qty > 10) {
+    header('Location: ' . $back . '&error=limit');
+    exit;
+}
 if ($alreadyInBag + $qty > (int) $row['stock']) {
     header('Location: ' . $back . '&error=stock');
     exit;

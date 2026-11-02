@@ -9,35 +9,31 @@ if (empty($_SESSION['csrf_token'])) {
 $message = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'login') {
-    $email = trim($_POST['email'] ?? '');
-    $password = $_POST['password'] ?? '';
+    $token = $_POST['csrf_token'] ?? '';
+    if (!is_string($token) || !hash_equals($_SESSION['csrf_token'], $token)) {
+        $message = 'Your sign-in form expired. Refresh and try again.';
+    } else {
+        $email = is_string($_POST['email'] ?? null) ? trim($_POST['email']) : '';
+        $password = is_string($_POST['password'] ?? null) ? $_POST['password'] : '';
 
-    $stmt = $conn->prepare(
-    'SELECT id, name, email, password_hash
-     FROM users
-     WHERE email = ?'
-);
+        $stmt = $conn->prepare('SELECT id, name, email, password_hash FROM users WHERE email = ?');
+        $stmt->bind_param('s', $email);
+        $stmt->execute();
+        $user = $stmt->get_result()->fetch_assoc();
+        $stmt->close();
 
-$stmt->bind_param('s', $email);
-$stmt->execute();
-
-$user = $stmt->get_result()->fetch_assoc();
-$stmt->close();
-
-if ($user && password_verify($password, $user['password_hash'])) {
-    session_regenerate_id(true);
-
-    $_SESSION['user_id'] = $user['id'];
-    $_SESSION['user_name'] = $user['name'];
-    $_SESSION['user_email'] = $user['email'];
-
-    header('Location: account.php');
-    exit;
-} else {
-    $message = 'Email or password is incorrect.';
+        if ($user && password_verify($password, $user['password_hash'])) {
+            session_regenerate_id(true);
+            $_SESSION['user_id'] = $user['id'];
+            $_SESSION['user_name'] = $user['name'];
+            $_SESSION['user_email'] = $user['email'];
+            header('Location: account.php');
+            exit;
+        } else {
+            $message = 'Email or password is incorrect.';
+        }
+    }
 }
-}
-
 // past orders for the signed-in customer
 $myOrders = [];
 if (!empty($_SESSION['user_id'])) {
@@ -107,6 +103,7 @@ include __DIR__ . '/includes/header.php';
                 <h2 class="section__title" id="signin-title">Sign in</h2>
                 <form class="objek-form" method="post" action="account.php">
                     <input type="hidden" name="action" value="login">
+                    <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
                     <div class="field">
                         <label class="field__label" for="login-email">Email</label>
                         <input type="email" name="email" id="login-email" autocomplete="username" required>

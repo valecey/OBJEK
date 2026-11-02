@@ -1,25 +1,22 @@
 <?php
-function send_email($conn, $to, $subject, $body, $orderId = null) {
-    $headers = "From: OBJEK <no-reply@objek.sg>\r\n"
-             . "Content-Type: text/plain; charset=UTF-8\r\n";
-
-    // missing/faulty mail server must still produce a failed email-log entry
-    $sent = false;
-    try {
-        $sent = @mail($to, $subject, $body, $headers);
-    } catch (Throwable $error) {
-        error_log('OBJEK email attempt failed: ' . $error->getMessage());
-    }
-
-    $sentFlag = $sent ? 1 : 0;
+// saves the message only, no mail server or delivery attempt is used
+function log_email($conn, $to, $subject, $body, $orderId = null) {
+    $sentFlag = 0;
     $stmt = $conn->prepare(
         'INSERT INTO email_log (order_id, to_email, subject, body, sent) VALUES (?, ?, ?, ?, ?)'
     );
     $stmt->bind_param('isssi', $orderId, $to, $subject, $body, $sentFlag);
     $stmt->execute();
+    $logId = (int) $conn->insert_id;
     $stmt->close();
 
-    return $sent;
+    return $logId;
+}
+
+// compatibility for existing group code, False means no email was sent
+function send_email($conn, $to, $subject, $body, $orderId = null) {
+    log_email($conn, $to, $subject, $body, $orderId);
+    return false;
 }
 
 // read the receipt from the committed order, so the email matches saved totals
@@ -51,6 +48,6 @@ function send_order_acknowledgement($conn, $orderId) {
         . "\n\nDemo payment: no money was charged."
         . "\nTrack your order on the OBJEK tracking page using your order number and this email address.\n";
 
-    // acknowledgements are transactional; email_updates controls future updates
-    return send_email($conn, $order['email'], 'OBJEK order #' . $orderId . ' confirmed', $body, $orderId);
+    // acknowledgements are transactional, email_updates controls future updates
+    return log_email($conn, $order['email'], 'OBJEK order #' . $orderId . ' confirmed', $body, $orderId);
 }
