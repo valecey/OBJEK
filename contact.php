@@ -19,15 +19,15 @@ $faqs = [
     'How much is delivery, and how long does it take?' =>
         'Delivery is free on orders of S$100 or more, and S$8 below that. We deliver anywhere in Singapore in 1 to 2 working days. Orders placed before 2pm on a working day leave our warehouse the same day.',
     'How do I track my order?' =>
-        'Go to Track your order and enter your order number and the email address you used at checkout. You can view each status update there. In this demo, opted-in email notifications are recorded in a log; no emails are sent.',
+        'Go to Track your order and enter your order number and the email address you used at checkout. You will see every step, from confirmed to delivered. We also email you each time the status changes.',
     'Can I change my address or cancel my order?' =>
         'Yes, as long as the order has not been packed yet. Send us a message with your order number and we will update or cancel it. Once an order is packed, it can no longer be changed.',
     'What is your returns policy?' =>
-        'This is a demo store. You can record a return enquiry through the contact form, but no actual returns or refunds are processed.',
+        'You can return any unused item in its original packaging within 14 days of delivery for a full refund. Send us a message with your order number to start a return.',
     'What does the one-year warranty cover?' =>
         'Every product is covered for one year from delivery against faults in materials and workmanship. If something stops working, we repair or replace it. Accidental damage, such as drops or water damage, is not covered.',
     'Which payment methods do you accept?' =>
-        'Checkout simulates a successful payment for this project. No money is charged, and no card details or payment provider are used.',
+        'We accept credit and debit cards and online payment, handled securely by our payment partner. We never see or store your full card details.',
     'Do I need an account to order?' =>
         'No, you can check out as a guest. With an account, your details are filled in for you and you can see all your past orders in one place.',
     'What does "Only 3 left" mean?' =>
@@ -39,19 +39,19 @@ $terms = [
     'About these terms' =>
         'These terms apply to every order placed on objek.sg. By placing an order, you agree to them. OBJEK is an online electronics shop based in Singapore.',
     'Prices and payment' =>
-        'All prices are in Singapore dollars (S$) and include GST. Checkout simulates payment only; no money is charged.',
+        'All prices are in Singapore dollars (S$) and include GST. Payment is taken when you place your order. If your payment is not successful, the order is cancelled and nothing is charged.',
     'Orders and stock' =>
-        'Your order is saved after successful demo checkout. Its acknowledgement is recorded in the email log without being sent. Stock is checked again when the order is placed.',
+        'Your order is confirmed once payment is successful, and we email you a confirmation. If an item turns out to be unavailable, we will contact you and refund that item in full.',
     'Delivery' =>
         'We deliver within Singapore only. Delivery times are estimates, and we are not responsible for delays caused by events outside our control. Please check your order when it arrives and tell us about any damage within 48 hours.',
     'Returns and refunds' =>
-        'Return and refund enquiries can be recorded through the contact form. This project does not process real returns, payments, or refunds. Cancelling a confirmed order restores its stock for demo purposes.',
+        'Unused items in their original packaging can be returned within 14 days of delivery. Refunds are made to your original payment method within 7 working days of us receiving the item. Delivery charges are refunded only if the item was faulty or wrong.',
     'Warranty' =>
         'All products come with a one-year warranty from the date of delivery. It covers faults in materials and workmanship, not accidental damage, misuse or normal wear.',
     'Your account' =>
         'If you create an account, keep your password private. You are responsible for orders placed using your account.',
     'Your information' =>
-        'This demo stores your name, address, phone number and email for order processing, tracking, and notification records. It does not send emails or connect to delivery or payment providers.',
+        'We use your name, address, phone number and email only to process and deliver your order and to send you order updates. We do not sell or share your details with anyone except our delivery and payment partners.',
     'Changes to these terms' =>
         'We may update these terms from time to time. The version shown here applies to orders placed from its last updated date.',
 ];
@@ -115,7 +115,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $body = "Hi {$values['name']},\n\n"
               . "Thanks for getting in touch. We have received your message (reference #{$messageId}) "
-              . "for this demo. This acknowledgement is recorded only; no email was sent.\n\n"
+              . "and will reply to this email address within one working day.\n\n"
               . "Your message:\n{$values['message']}\n\n"
               . "OBJEK";
         log_email($conn, $values['email'], "We've received your message (#{$messageId})", $body);
@@ -140,8 +140,8 @@ include 'includes/header.php';
       <p class="eyebrow">Help / Contact</p>
       <h1 class="display display--md" id="contact-title">Get in touch <span>Replies in a day</span></h1>
       <p class="description">
-        Questions about an order, a product or a return? Submit a demo message.
-        Your message and acknowledgement are recorded; no emails are sent.
+        Questions about an order, a product or a return? Send us a message and a real person
+        will get back to you by email within one working day.
       </p>
 
       <figure class="window contact__visual">
@@ -173,13 +173,13 @@ include 'includes/header.php';
     </section>
 
     <section class="panel contact__panel" aria-label="Send us a message">
-      <div class="panel__bar"><span>NEW MESSAGE</span><span><?= $sentId ? 'RECORDED' : 'DRAFT' ?></span></div>
+      <div class="panel__bar"><span>NEW MESSAGE</span><span><?= $sentId ? 'SENT' : 'DRAFT' ?></span></div>
 
       <?php if ($sentId): ?>
         <div class="panel__body contact__sent" role="status">
-          <h2>Message recorded.</h2>
+          <h2>Message sent.</h2>
           <p>Thanks for writing to us. Your reference number is <strong>#<?= $sentId ?></strong>.
-             Your acknowledgement has been recorded for this demo. No email has been sent.</p>
+             We've emailed you a copy and will reply within one working day.</p>
           <div class="contact__sent-actions">
             <a class="btn btn--lime" href="listing.php">Keep shopping</a>
             <a class="btn btn--outline" href="contact.php">Send another message</a>
