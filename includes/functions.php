@@ -47,10 +47,10 @@ function file_tag($name) {
 // for "shop by what you do"
 function get_uses() {
     return [
-        'study'   => ['Study',   'Laptops, tablets and quiet headphones for lectures and late nights.', 'images/uses/study.svg',   'images/uses/study-grey.svg'],
-        'commute' => ['Commute', 'Light, long-lasting gear for the MRT and the bus ride home.',          'images/uses/commute.svg', 'images/uses/commute-grey.svg'],
-        'create'  => ['Create',  'Cameras, laptops and desk gear for photos, video and design work.',       'images/uses/create.svg',  'images/uses/create-grey.svg'],
-        'play'    => ['Play',    'Controllers, headsets and speakers for downtime.',                    'images/uses/play.svg',    'images/uses/play-grey.svg'],
+        'study'   => ['Study',   'Laptops, tablets and quiet headphones for lectures and late nights.', 'images/uses/study.png',   'images/uses/study-grey.png'],
+        'commute' => ['Commute', 'Light, long-lasting gear for the MRT and the bus ride home.',          'images/uses/commute.png', 'images/uses/commute-grey.png'],
+        'create'  => ['Create',  'Cameras, laptops and desk gear for photos, video and design work.',       'images/uses/create.png',  'images/uses/create-grey.png'],
+        'play'    => ['Play',    'Controllers, headsets and speakers for downtime.',                    'images/uses/play.png',    'images/uses/play-grey.png'],
     ];
 }
 
