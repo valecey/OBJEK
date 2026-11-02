@@ -38,11 +38,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'login
 $myOrders = [];
 $isStaff = false;
 if (!empty($_SESSION['user_id'])) {
+    // check the role in the database each time, like admin-orders.php does
     $stmt = $conn->prepare('SELECT is_admin FROM users WHERE id = ?');
     $stmt->bind_param('i', $_SESSION['user_id']);
     $stmt->execute();
     $isStaff = (int) ($stmt->get_result()->fetch_assoc()['is_admin'] ?? 0) === 1;
-    $stmt->close();    
+    $stmt->close();
+
     $stmt = $conn->prepare(
         'SELECT id, status, total, created_at
          FROM orders
