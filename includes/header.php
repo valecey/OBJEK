@@ -53,7 +53,7 @@ $hideDeliveryNote = $hideDeliveryNote ?? false;
       <?php if (empty($hideDeliveryNote)): ?>
         <p class="brand-bar__meta">
           <span class="square" aria-hidden="true"></span>
-          Free delivery over S$100<br>
+          Free delivery from S$100<br>
           <span>Ships across Singapore in 1 to 2 days</span>
         </p>
       <?php endif; ?>

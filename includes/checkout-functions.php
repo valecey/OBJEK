@@ -40,13 +40,14 @@ function place_demo_order($conn, $sessionCart, $values, $userId, $expectedSubtot
             throw new DomainException('Your bag has changed. Return to your bag to review stock and quantities.');
         }
         $items = $loaded['items'];
-        $subtotalCents = calculate_cart_totals($items)['subtotal_cents'];
+        $totals = calculate_cart_totals($items);
+        $subtotalCents = $totals['subtotal_cents'];
         if ($subtotalCents !== $expectedSubtotal) {
             throw new DomainException('Product prices have changed. Review the updated summary and submit again.');
         }
         $subtotal = number_format($subtotalCents / 100, 2, '.', '');
-        $shipping = '0.00';
-        $total = $subtotal;
+        $shipping = number_format($totals['shipping_cents'] / 100, 2, '.', '');
+        $total = number_format($totals['total_cents'] / 100, 2, '.', '');
         $order = $conn->prepare(
             "INSERT INTO orders (user_id, email, first_name, last_name, address, postal_code, phone,
              email_updates, subtotal, shipping, total, payment_status, status)

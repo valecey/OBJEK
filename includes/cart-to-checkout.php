@@ -68,6 +68,12 @@ function calculate_cart_totals($items) {
     foreach ($items as $item) {
         $subtotalCents += $item['line_subtotal_cents'];
     }
-    // havent do shipping yet, currently 100 dollar
-    return ['subtotal_cents' => $subtotalCents];
+    // Calculate in cents: free at S$100 or more, otherwise S$8.
+    // An empty bag has no delivery charge.
+    $shippingCents = $items && $subtotalCents < 10000 ? 800 : 0;
+    return [
+        'subtotal_cents' => $subtotalCents,
+        'shipping_cents' => $shippingCents,
+        'total_cents' => $subtotalCents + $shippingCents,
+    ];
 }

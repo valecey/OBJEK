@@ -125,7 +125,7 @@ include 'includes/header.php';
         </div>
         <p class="field-error" id="qty-error" hidden></p>
         <ul class="buy__notes">
-          <li>Free delivery on orders above S$100</li>
+          <li>Free delivery on orders of S$100 or more</li>
           <li>One-year warranty, 14-day returns</li>
         </ul>
       </form>

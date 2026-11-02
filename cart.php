@@ -108,7 +108,15 @@ include __DIR__ . '/includes/header.php';
         <span>Product subtotal (incl. GST)</span>
         <strong><?= money($totals['subtotal_cents'] / 100) ?></strong>
       </p>
-      <p class="objek-cart__note">Delivery charges are not included in this subtotal.</p>
+      <p class="objek-cart__subtotal">
+        <span>Delivery</span>
+        <strong><?= money($totals['shipping_cents'] / 100) ?></strong>
+      </p>
+      <p class="objek-cart__subtotal">
+        <span>Total</span>
+        <strong><?= money($totals['total_cents'] / 100) ?></strong>
+      </p>
+      <p class="objek-cart__note">Free delivery on orders of S$100 or more. Otherwise, delivery is S$8.</p>
     </section>
   <?php endif; ?>
 

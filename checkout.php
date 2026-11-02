@@ -18,7 +18,8 @@ if (!$cart['items'] || $cart['issues']) {
     exit;
 }
 $items = $cart['items'];
-$subtotalCents = calculate_cart_totals($items)['subtotal_cents'];
+$totals = calculate_cart_totals($items);
+$subtotalCents = $totals['subtotal_cents'];
 $errors = [];
 $values = ['email' => (string) ($_SESSION['user_email'] ?? ''), 'first_name' => '',
     'last_name' => '', 'address' => '', 'postal_code' => '', 'phone' => '', 'email_updates' => 0];
@@ -69,7 +70,8 @@ if ($isPost) {
     // Refresh the summary following stock/price changes; keep all entered values.
     $cart = load_cart_items($conn, $_SESSION['cart'] ?? []);
     $items = $cart['items'];
-    $subtotalCents = calculate_cart_totals($items)['subtotal_cents'];
+    $totals = calculate_cart_totals($items);
+    $subtotalCents = $totals['subtotal_cents'];
     $errors = array_merge($errors, $cart['issues']);
 }
 if (empty($_SESSION['checkout_token'])) {
@@ -137,8 +139,8 @@ include __DIR__ . '/includes/header.php';
         </ul>
         <dl class="objek-checkout__totals">
           <div><dt>Subtotal (incl. GST)</dt><dd><?= money($subtotalCents / 100) ?></dd></div>
-          <div><dt>Delivery (demo)</dt><dd><?= money(0) ?></dd></div>
-          <div class="objek-checkout__total"><dt>Total</dt><dd><?= money($subtotalCents / 100) ?></dd></div>
+          <div><dt>Delivery</dt><dd><?= money($totals['shipping_cents'] / 100) ?></dd></div>
+          <div class="objek-checkout__total"><dt>Total</dt><dd><?= money($totals['total_cents'] / 100) ?></dd></div>
         </dl>
         <p class="notice">Demo payment &mdash; no money will be charged. Placing this order simulates a successful payment.</p>
         <button class="btn btn--lime objek-checkout__submit" type="submit"

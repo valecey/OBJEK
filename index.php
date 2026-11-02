@@ -70,7 +70,7 @@ foreach ($budgets as $key => $b) {
 }
 
 $pageTitle = 'OBJEK | Electronics for the everyday';
-$pageDescription = 'Phones, laptops, audio, gaming and cameras chosen for daily use. Free delivery in Singapore on orders above S$100.';
+$pageDescription = 'Phones, laptops, audio, gaming and cameras chosen for daily use. Free delivery in Singapore on orders of S$100 or more.';
 include 'includes/header.php';
 ?>
 
@@ -216,7 +216,7 @@ include 'includes/header.php';
       <h2 class="visually-hidden" id="promise-title">Why shop with us</h2>
       <ul class="promises">
         <li>
-          <h3>Free delivery over S$100</h3>
+          <h3>Free delivery from S$100</h3>
           <p>Orders placed before 2pm leave our warehouse the same day.</p>
         </li>
         <li>

@@ -13,7 +13,7 @@ $topics = [
 // faq: questions + answer
 $faqs = [
     'How much is delivery, and how long does it take?' =>
-        'Delivery is free on orders above S$100, and S$8 below that. We deliver anywhere in Singapore in 1 to 2 working days. Orders placed before 2pm on a working day leave our warehouse the same day.',
+        'Delivery is free on orders of S$100 or more, and S$8 below that. We deliver anywhere in Singapore in 1 to 2 working days. Orders placed before 2pm on a working day leave our warehouse the same day.',
     'How do I track my order?' =>
         'Go to Track your order and enter your order number and the email address you used at checkout. You will see every step, from confirmed to delivered. We also email you each time the status changes.',
     'Can I change my address or cancel my order?' =>
