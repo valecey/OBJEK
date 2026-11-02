@@ -94,7 +94,7 @@ include __DIR__ . '/includes/header.php';
       <ul><?php foreach ($errors as $error): ?><li><?= e($error) ?></li><?php endforeach; ?></ul>
     </div>
   <?php endif; ?>
-  <form action="checkout.php" method="post" class="objek-checkout__layout">
+  <form action="checkout.php" method="post" class="objek-checkout__layout" data-validation="checkout">
     <input type="hidden" name="checkout_token" value="<?= e($_SESSION['checkout_token']) ?>">
     <section aria-labelledby="delivery-title">
       <h2 class="section__title" id="delivery-title">Delivery details</h2>

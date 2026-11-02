@@ -66,7 +66,7 @@ include __DIR__ . '/includes/header.php';
         <p class="notice objek-form__message" role="status"><?= e($message) ?></p>
     <?php endif; ?>
 
-    <form class="objek-form" method="post" action="register.php">
+    <form class="objek-form" method="post" action="register.php" data-validation="register">
         <input type="hidden" name="action" value="register">
         <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
         <div class="field">

@@ -118,7 +118,7 @@ include __DIR__ . '/includes/header.php';
         <div class="objek-checkout__layout">
             <section aria-labelledby="signin-title">
                 <h2 class="section__title" id="signin-title">Sign in</h2>
-                <form class="objek-form" method="post" action="account.php">
+                <form class="objek-form" method="post" action="account.php" data-validation="login">
                     <input type="hidden" name="action" value="login">
                     <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
                     <div class="field">

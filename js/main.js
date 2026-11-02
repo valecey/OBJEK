@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', function () {
   setUpColourPickers();
   setUpCardSwatches();
   setUpContactForm();
+  setUpCustomerForms();
 });
 
 // product tilt feature for the home page feature area and the product page
@@ -332,4 +333,94 @@ function clearError(input, el) {
   el.hidden = true;
   el.textContent = '';
   input.removeAttribute('aria-invalid');
+}
+
+
+// registration, sign-in and checkout feedback, PHP still checks every submission
+function setUpCustomerForms() {
+  var forms = document.querySelectorAll('form[data-validation]');
+  for (var i = 0; i < forms.length; i++) {
+    initCustomerForm(forms[i]);
+  }
+}
+
+function initCustomerForm(form) {
+  var kind = form.getAttribute('data-validation');
+  var inputs = form.querySelectorAll('input[required]');
+  var fields = [];
+
+  for (var i = 0; i < inputs.length; i++) {
+    var input = inputs[i];
+    var error = document.createElement('p');
+    error.id = input.id + '-error';
+    error.className = 'field-error';
+    error.hidden = true;
+    error.setAttribute('aria-live', 'polite');
+    input.insertAdjacentElement('afterend', error);
+    var describedBy = input.getAttribute('aria-describedby');
+    input.setAttribute('aria-describedby', (describedBy ? describedBy + ' ' : '') + error.id);
+    fields.push([input, error]);
+
+    // remove the old message as the customer corrects this field
+    (function (field, message) {
+      field.addEventListener('input', function () { clearError(field, message); });
+    })(input, error);
+  }
+
+  function check(input) {
+    // passwords must keep their spaces, other fields match PHP's trimmed values
+    var value = input.type === 'password' ? input.value : input.value.trim();
+    var label = input.labels[0].textContent.trim();
+    if (value === '') return 'Enter your ' + label.toLowerCase() + '.';
+
+    if (kind === 'register' && input.name === 'password') {
+      // check UTF-8 bytes rather than characters
+      var bytes = new TextEncoder().encode(value).length;
+      if (bytes < 8 || bytes > 72) return 'Use a password between 8 and 72 bytes.';
+      return '';
+    }
+
+    var length = Array.from(value).length;
+    if (kind === 'register' && input.name === 'email') {
+      length = new TextEncoder().encode(value).length;
+    }
+    if (input.maxLength >= 0 && length > input.maxLength) {
+      return 'Keep your ' + label.toLowerCase() + ' within ' + input.maxLength
+        + (kind === 'register' && input.name === 'email' ? ' bytes.' : ' characters.');
+    }
+    if (input.type === 'email') {
+      input.value = value;
+      if (input.validity.typeMismatch || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+        return 'Enter an email address like name@example.com.';
+      }
+    }
+    if (kind === 'checkout' && input.name === 'postal_code' && !/^[0-9]{6}$/.test(value)) {
+      return 'Enter a six-digit Singapore postal code.';
+    }
+    return '';
+  }
+
+  form.addEventListener('submit', function (event) {
+    var firstProblem = null;
+    for (var i = 0; i < fields.length; i++) {
+      var input = fields[i][0];
+      var error = fields[i][1];
+      var problem = check(input);
+      if (problem) {
+        error.textContent = problem;
+        error.hidden = false;
+        input.setAttribute('aria-invalid', 'true');
+        if (!firstProblem) firstProblem = input;
+      } else {
+        clearError(input, error);
+      }
+    }
+    if (firstProblem) {
+      event.preventDefault();
+      firstProblem.focus();
+    }
+  });
+
+  // disable native popups only after JS is ready, HTML validation remains a fallback
+  form.noValidate = true;
 }
