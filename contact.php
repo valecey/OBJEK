@@ -140,7 +140,7 @@ include 'includes/header.php';
       <p class="eyebrow">Help / Contact</p>
       <h1 class="display display--md" id="contact-title">Get in touch <span>Replies in a day</span></h1>
       <p class="description">
-        Questions about an order, a product or a return? Send us a message and a real person
+        Questions about an order, a product or a return? Send us a message and we
         will get back to you by email within one working day.
       </p>
 
