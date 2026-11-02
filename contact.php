@@ -146,7 +146,7 @@ include 'includes/header.php';
 
       <figure class="window contact__visual">
         <span class="window__tag">SUPPORT.IMG</span>
-        <img src="images/contact.svg" alt="Illustration of a shop counter with a message bubble" width="600" height="400">
+        <img src="images/contact.png" alt="Illustration of a shop counter with a message bubble" width="600" height="400">
       </figure>
 
       <dl class="contact__details">
