@@ -3,6 +3,7 @@ require_once __DIR__ . '/includes/db.php';
 require_once __DIR__ . '/includes/functions.php';
 require_once __DIR__ . '/includes/cart-to-checkout.php';
 require_once __DIR__ . '/includes/checkout-functions.php';
+require_once __DIR__ . '/includes/mail.php';
 
 $isPost = $_SERVER['REQUEST_METHOD'] === 'POST';
 $postedToken = is_string($_POST['checkout_token'] ?? null) ? $_POST['checkout_token'] : '';
@@ -49,6 +50,13 @@ if ($isPost) {
             $_SESSION['completed_checkout_tokens'][$postedToken] = $orderId;
             $_SESSION['cart'] = [];
             unset($_SESSION['checkout_token'], $_SESSION['checkout_cart'], $_SESSION['checkout_subtotal_cents']);
+            // The order is already committed and this form token marked complete.
+            // Mail failure must not undo it or invite a duplicate order submission.
+            try {
+                send_order_acknowledgement($conn, $orderId);
+            } catch (Throwable $mailError) {
+                error_log('OBJEK order #' . $orderId . ' acknowledgement could not be logged: ' . $mailError->getMessage());
+            }
             header('Location: order-confirmation.php?order_id=' . $orderId, true, 303);
             exit;
         } catch (DomainException $error) {
