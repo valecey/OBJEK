@@ -36,7 +36,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'login
 }
 // past orders for the signed-in customer
 $myOrders = [];
+$isStaff = false;
 if (!empty($_SESSION['user_id'])) {
+    $stmt = $conn->prepare('SELECT is_admin FROM users WHERE id = ?');
+    $stmt->bind_param('i', $_SESSION['user_id']);
+    $stmt->execute();
+    $isStaff = (int) ($stmt->get_result()->fetch_assoc()['is_admin'] ?? 0) === 1;
+    $stmt->close();    
     $stmt = $conn->prepare(
         'SELECT id, status, total, created_at
          FROM orders
@@ -63,6 +69,12 @@ include __DIR__ . '/includes/header.php';
 
     <?php if (!empty($_SESSION['user_id'])): ?>
         <p class="objek-form__message">Welcome, <?= e($_SESSION['user_name'] ?? '') ?>! You are signed in as <?= e($_SESSION['user_email'] ?? '') ?>.</p>
+
+        <?php if ($isStaff): ?>
+            <p class="objek-form__message">
+                <a class="btn btn--lime" href="admin-orders.php">Manage orders &rarr;</a>
+            </p>
+        <?php endif; ?>
 
         <h2 class="section__title objek-account__heading">Your orders</h2>
         <?php if (!$myOrders): ?>

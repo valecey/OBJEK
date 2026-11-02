@@ -156,7 +156,7 @@ $pageTitle = 'Manage orders | OBJEK';
 include __DIR__ . '/includes/header.php';
 ?>
 
-<main id="main" class="wrap section">
+<main id="main" class="wrap section objek-admin">
     <h1 class="page-title">Manage orders</h1>
     <p>You are signed in as staff.</p>
     <p>Demo email notifications are logged for opted-in customers. No emails are sent.</p>

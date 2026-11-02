@@ -10,7 +10,7 @@
 /* load fonts */
 @font-face {
   font-family: "Hanken Grotesk";
-  src: url("../fonts/HankenGrotesk-Variable.woff2") format("woff2");
+  src: url("../fonts/HankenGrotesk-VariableFont_wght.ttf") format("truetype");  
   font-weight: 100 900;
   font-display: swap;
 }
@@ -1298,6 +1298,7 @@ figure { margin: 0; }
   .objek-cart__subtotal { flex-direction: column; gap: 8px; }
   .objek-cart__actions .btn { width: 100%; }
   .objek-checkout__fields { grid-template-columns: 1fr; }
+  .objek-cart__actions { flex-direction: column-reverse; gap: 12px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1363,3 +1364,21 @@ figure { margin: 0; }
 .objek-track__history p { color: var(--muted); }
 .objek-track .objek-track__link { margin-top: 20px; }
 
+/* bag quantity box and staff update form */
+.objek-cart td form,
+.objek-admin td form { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.objek-cart td input[type="number"],
+.objek-admin td input,
+.objek-admin td select {
+  min-height: 44px;
+  padding: 8px 10px;
+  border: 1px solid #3a3a38;
+  border-radius: 0;
+  background: var(--bg-2);
+  color: var(--fg);
+  font: inherit;
+}
+.objek-cart td input[type="number"] { width: 72px; }
+.objek-admin td form { flex-direction: column; align-items: stretch; min-width: 220px; }
+.objek-admin td label { color: var(--muted); font-size: 0.8125rem; }
+.objek-admin td .btn { align-self: start; }
