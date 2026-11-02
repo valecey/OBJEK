@@ -145,7 +145,7 @@ $pageTitle = 'Manage orders | OBJEK';
 include __DIR__ . '/includes/header.php';
 ?>
 
-<main id="main" class="wrap section">
+<main id="main" class="wrap section objek-admin">
     <h1 class="page-title">Manage orders</h1>
     <p>You are signed in as staff.</p>
     <p>Confirmed orders can be cancelled and their stock restored. Packed, shipped, and delivered orders cannot be cancelled here.</p>
