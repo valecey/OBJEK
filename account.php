@@ -68,6 +68,9 @@ include __DIR__ . '/includes/header.php';
 
 <main id="main" class="wrap section">
     <h1 class="page-title">Your account</h1>
+    <p class="objek-form__message">
+        <a class="btn btn--outline" href="track-order.php">Track an order &rarr;</a>
+    </p>
 
     <?php if (!empty($_SESSION['user_id'])): ?>
         <p class="objek-form__message">Welcome, <?= e($_SESSION['user_name'] ?? '') ?>! You are signed in as <?= e($_SESSION['user_email'] ?? '') ?>.</p>
